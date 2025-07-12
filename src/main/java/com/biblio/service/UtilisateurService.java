@@ -18,7 +18,7 @@ public class UtilisateurService {
         return utilisateurRepository.findAll();
     }
 
-    public Utilisateur findBy
+    public Utili
 
     public Optional<Utilisateur> findById(Long id) {
         return utilisateurRepository.findById(id);

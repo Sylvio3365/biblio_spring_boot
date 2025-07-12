@@ -22,3 +22,31 @@ CREATE TABLE utilisateur (
     idrole INT NOT NULL,
     FOREIGN KEY (idrole) REFERENCES role (idrole)
 );
+
+INSERT INTO
+    utilisateur (
+        idutilisateur,
+        nom,
+        mdp,
+        idrole
+    )
+VALUES (
+        1,
+        'bibliothecaire',
+        'bibliothecaire',
+        1
+    );
+
+INSERT INTO
+    utilisateur (
+        idutilisateur,
+        nom,
+        mdp,
+        idrole
+    )
+VALUES (
+        2,
+        'adherent1',
+        'adherent1',
+        2
+    );

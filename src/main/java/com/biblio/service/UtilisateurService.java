@@ -18,7 +18,9 @@ public class UtilisateurService {
         return utilisateurRepository.findAll();
     }
 
-    public Utili
+    public Utilisateur findByNomAndMdp(String nom, String mdp) {
+        return utilisateurRepository.findByNomAndMdp(nom, mdp).orElse(null);
+    }
 
     public Optional<Utilisateur> findById(Long id) {
         return utilisateurRepository.findById(id);

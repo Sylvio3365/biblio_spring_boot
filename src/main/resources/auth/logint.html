@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Connexion</title>
+</head>
+
+<body>
+
+    <h2 style="text-align:center;">Connexion</h2>
+
+    <div style="width: 300px; margin: 0 auto;">
+        <form th:action="@{/doLogin}" method="post">
+            <div>
+                <label for="nom">Nom d'utilisateur</label><br>
+                <input type="text" id="nom" name="nom" required>
+            </div>
+
+            <div style="margin-top:10px;">
+                <label for="mdp">Mot de passe</label><br>
+                <input type="password" id="mdp" name="mdp" required>
+            </div>
+
+            <div style="margin-top:15px; text-align: center;">
+                <button type="submit">Se connecter</button>
+            </div>
+        </form>
+
+        <p th:if="${error}" th:text="${error}" style="color: red; text-align: center; margin-top:10px;"></p>
+    </div>
+
+</body>
+
+</html>

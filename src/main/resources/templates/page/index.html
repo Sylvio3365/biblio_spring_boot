@@ -16,8 +16,8 @@
     <div th:if="${role.nom == 'bibliothecaire'}">
         <nav>
             <ul>
-                <li><a th:href="@{/utilisateurs}">Creer un pret</a></li>
-                <li><a th:href="@{/livres}">Voir reservation</a></li>
+                <li><a th:href="@{/pret/form}">Creer un pret</a></li>
+                <li><a th:href="@{/rendre/form}">Rendre un pret</a></li>
                 <li><a th:href="@{/livres}">Voir reservation</a></li>
                 <li><a th:href="@{/logout}">Déconnexion</a></li>
             </ul>

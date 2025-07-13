@@ -158,3 +158,23 @@ INSERT INTO
     exemplaire (numero, idtypepret, idlivre)
 VALUES ('EX003', 1, 2),
     ('EX004', 1, 2);
+
+INSERT INTO etat (idetat, nom) VALUES (1, "Disponible");
+
+INSERT INTO etat (idetat, nom) VALUES (2, "En pret");
+
+INSERT INTO
+    etatexemplaire (
+        idetat,
+        idexemplaire,
+        dateheure
+    )
+VALUES (1, 1, NOW());
+
+INSERT INTO
+    etatexemplaire (
+        idetat,
+        idexemplaire,
+        dateheure
+    )
+VALUES (2, 2, NOW());

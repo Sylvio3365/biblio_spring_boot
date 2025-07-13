@@ -15,4 +15,8 @@ public class TypePretService {
     public List<TypePret> findAll() {
         return typePretRepository.findAll();
     }
+
+    public TypePret findById(Long id) {
+        return typePretRepository.findById(id).orElse(null);
+    }
 }

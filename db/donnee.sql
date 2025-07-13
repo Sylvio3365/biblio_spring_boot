@@ -158,3 +158,58 @@ INSERT INTO
     exemplaire (numero, idtypepret, idlivre)
 VALUES ('EX003', 1, 2),
     ('EX004', 1, 2);
+
+INSERT INTO etat (idetat, nom) VALUES (1, "Disponible");
+
+INSERT INTO etat (idetat, nom) VALUES (2, "En pret");
+
+INSERT INTO
+    etatexemplaire (
+        idetat,
+        idexemplaire,
+        dateheure
+    )
+VALUES (1, 1, NOW());
+
+INSERT INTO
+    etatexemplaire (
+        idetat,
+        idexemplaire,
+        dateheure
+    )
+VALUES (2, 2, NOW());
+
+INSERT INTO
+    actif (debut, fin, idadherent)
+VALUES (
+        '2025-06-01 08:00:00',
+        '2025-12-31 23:59:59',
+        1
+    );
+
+INSERT INTO
+    abonnement (debut, fin, idadherent)
+VALUES (
+        '2025-06-01 08:00:00',
+        '2025-12-31 23:59:59',
+        1
+    );
+
+INSERT INTO
+    actif (debut, fin, idadherent)
+VALUES (
+        '2025-06-01 08:00:00',
+        '2025-12-31 23:59:59',
+        1
+    );
+
+INSERT INTO
+    sanction (debut, fin, idadherent)
+VALUES (
+        '2025-06-01 08:00:00',
+        '2025-12-31 23:59:59',
+        1
+    );
+
+SELECT * FROM exemplaire;
+SELECT * from etatexemplaire;

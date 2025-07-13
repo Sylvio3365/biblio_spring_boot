@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Créer un prêt</title>
+</head>
+
+<body>
+
+    <h2>Créer un nouveau prêt</h2>
+
+    <form method="post" th:action="@{/pret/save}">
+        <!-- Sélection de l'adhérent -->
+        <label for="adherent">Adhérent :</label>
+        <select name="idAdherent" id="adherent" required>
+            <option value="" disabled selected>-- Choisir un adhérent --</option>
+            <option th:each="adherent : ${adherents}" th:value="${adherent.idadherent}"
+                th:text="${adherent.nom + ' ' + adherent.prenom}">
+            </option>
+        </select>
+
+        <br><br>
+
+        <!-- Sélection du type de prêt -->
+        <label for="typepret">Type de prêt :</label>
+        <select name="idTypePret" id="typepret" required>
+            <option value="" disabled selected>-- Choisir un type de prêt --</option>
+            <option th:each="tp : ${typeprets}" th:value="${tp.idtypepret}" th:text="${tp.nom}">
+            </option>
+        </select>
+
+        <br><br>
+
+        <!-- Sélection de l'exemplaire -->
+        <label for="exemplaire">Exemplaire :</label>
+        <select name="idExemplaire" id="exemplaire" required>
+            <option value="" disabled selected>-- Choisir un exemplaire --</option>
+            <option th:each="ex : ${exemplaires}" th:value="${ex.idexemplaire}"
+                th:text="'Livre : ' + ${ex.livre.titre} + ' | Exemplaire n°' + ${ex.numero}">
+            </option>
+
+        </select>
+
+        <br><br>
+
+        <!-- Bouton de soumission -->
+        <button type="submit">Valider</button>
+    </form>
+    <div th:if="${error}" style="color: red;">
+        <p th:text="${error}"></p>
+    </div>
+
+    <div th:if="${success}" style="color: green;">
+        <p th:text="${success}"></p>
+    </div>
+
+</body>
+
+</html>

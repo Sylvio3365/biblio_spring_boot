@@ -175,3 +175,28 @@ CREATE TABLE actif (
     PRIMARY KEY (idactif),
     FOREIGN KEY (idadherent) REFERENCES adherent (idadherent)
 );
+
+CREATE TABLE etat (
+    idetat INT AUTO_INCREMENT,
+    nom VARCHAR(50) NOT NULL,
+    PRIMARY KEY (idetat)
+);
+
+CREATE TABLE etatexemplaire (
+    idetatexemplaire INT AUTO_INCREMENT,
+    dateheure DATETIME NOT NULL,
+    idetat INT NOT NULL,
+    idexemplaire INT NOT NULL,
+    PRIMARY KEY (idetatexemplaire),
+    FOREIGN KEY (idetat) REFERENCES etat (idetat),
+    FOREIGN KEY (idexemplaire) REFERENCES exemplaire (idexemplaire)
+);
+
+CREATE TABLE abonnement (
+    idabonnement INT AUTO_INCREMENT,
+    debut DATETIME,
+    fin DATETIME,
+    idadherent INT NOT NULL,
+    PRIMARY KEY (idabonnement),
+    FOREIGN KEY (idadherent) REFERENCES adherent (idadherent)
+);

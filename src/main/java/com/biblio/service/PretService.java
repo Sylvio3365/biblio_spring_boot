@@ -37,6 +37,10 @@ public class PretService {
         return pretRepository.getPretNonRendu();
     }
 
+    public Pret findById(Long id) {
+        return pretRepository.findById(id).orElse(null);
+    }
+
     public String traiterPret(Long idAdherent, Long idTypePret, Long idExemplaire) {
 
         // 1️⃣ Vérification des entités de base
@@ -75,6 +79,7 @@ public class PretService {
 
         // 6️⃣ Vérifier si l’âge de l’adhérent respecte la règle d’âge du livre
         RegleLivre regleLivre = exemplaire.getLivre().getRegleLivre();
+
         if (regleLivre != null) {
             int ageAdherent = adherent.getAge();
             int ageMin = regleLivre.getAgemin();
@@ -85,7 +90,7 @@ public class PretService {
 
         // 7️⃣ Tout est bon : créer le prêt
         LocalDateTime debut = LocalDateTime.now().plusHours(3); // Heure locale sans ZoneId
-        LocalDateTime fin = debut.plusDays(quotaPret);
+        LocalDateTime fin = debut.plusDays(adherent.getProfil().getRegle().getNbjourpret());
 
         Pret pret = new Pret();
         pret.setAdherent(adherent);

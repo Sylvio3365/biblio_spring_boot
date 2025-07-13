@@ -1,6 +1,5 @@
 package com.biblio.controller;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,14 +11,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.biblio.model.Adherent;
-import com.biblio.model.Etat;
-import com.biblio.model.EtatExemplaire;
 import com.biblio.model.Exemplaire;
-import com.biblio.model.Pret;
-import com.biblio.model.RegleLivre;
 import com.biblio.model.TypePret;
 import com.biblio.service.AdherentService;
-import com.biblio.service.EtatExemplaireService;
 import com.biblio.service.ExemplaireService;
 import com.biblio.service.PretService;
 import com.biblio.service.TypePretService;

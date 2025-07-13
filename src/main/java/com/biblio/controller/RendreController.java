@@ -32,13 +32,9 @@ public class RendreController {
 
     @PostMapping("/save")
     public String rendre(@RequestParam("idPret") Long idPret, Model model) {
-        // try {
-        //     rendreService.rendrePret(idPret); // ou toute ta logique métier ici
-        //     model.addAttribute("success", "✅ Prêt rendu avec succès.");
-        // } catch (Exception e) {
-        //     model.addAttribute("error", "⛔ Erreur lors du rendu : " + e.getMessage());
-        // }
-
+        Pret p = pretService.findById(idPret);
+        String message = rendreService.rendrePret(p);
+        model.addAttribute("message", message);
         model.addAttribute("prets", pretService.getPretNonRendu());
         return "page/bibliothecaire/rendre";
     }

@@ -51,4 +51,8 @@ public class AdherentService {
         return message.contains("✅");
     }
 
+    public int getNbPretNonRendu(Long idadherent) {
+        return adherentRepository.getNbPretNonRendu(idadherent);
+    }
+
 }

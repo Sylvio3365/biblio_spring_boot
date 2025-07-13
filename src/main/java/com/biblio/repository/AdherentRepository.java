@@ -30,4 +30,13 @@ public interface AdherentRepository extends JpaRepository<Adherent, Long> {
                 AND CURRENT_TIMESTAMP BETWEEN ab.debut AND ab.fin
             """)
     boolean isAbonne(@Param("idAdherent") Long idAdherent);
+
+    @Query("""
+                SELECT COUNT(p)
+                FROM Pret p
+                WHERE p.adherent.idadherent = :idAdherent
+                AND p.idpret NOT IN (SELECT r.pret.idpret FROM Rendre r)
+            """)
+    int getNbPretNonRendu(@Param("idAdherent") Long idAdherent);
+
 }

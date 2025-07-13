@@ -29,6 +29,14 @@ public class AdherentService {
         return adherentRepository.findById(idadherent).orElse(null);
     }
 
+    public int countReservationEnAttente(Long id) {
+        return adherentRepository.countReservationEnAttente(id);
+    }
+
+    public Adherent findByIdutilisateur(Long iduser) {
+        return adherentRepository.findByIdutilisateur(iduser);
+    }
+
     public String checkAdherent(Long idadherent) {
         boolean estSanctionne = adherentRepository.isSanctioned(idadherent);
         // boolean estActif = adherentRepository.isActif(idadherent);
@@ -36,11 +44,12 @@ public class AdherentService {
         Adherent a = adherentRepository.findById(idadherent).orElse(null);
         if (a == null) {
             return "❌ Adhérent non trouvé";
-        } if (estSanctionne) {
+        }
+        if (estSanctionne) {
             return "⛔ Adhérent sanctionné – Prêt refusé";
         }
         // if (!estActif) {
-        //     return "⛔ Adhérent inactif – Prêt refusé";
+        // return "⛔ Adhérent inactif – Prêt refusé";
         // }
         if (!estAbonne) {
             return "⛔ Adhérent non abonné – Prêt refusé";

@@ -129,12 +129,15 @@ CREATE TABLE prolongement (
     FOREIGN KEY (idpret) REFERENCES pret (idpret)
 );
 
+
 CREATE TABLE reservation (
     idreservation INT AUTO_INCREMENT,
     datereservation DATETIME,
     datepret DATE,
+    idadherent INT NOT NULL,
     idexemplaire INT NOT NULL,
     PRIMARY KEY (idreservation),
+    FOREIGN KEY (idadherent) REFERENCES adherent (idadherent),
     FOREIGN KEY (idexemplaire) REFERENCES exemplaire (idexemplaire)
 );
 

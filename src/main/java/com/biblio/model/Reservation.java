@@ -20,4 +20,8 @@ public class Reservation {
     @ManyToOne
     @JoinColumn(name = "idexemplaire", nullable = false)
     private Exemplaire exemplaire;
+
+    @ManyToOne
+    @JoinColumn(name = "idadherent", nullable = false)
+    private Adherent adherent;
 }

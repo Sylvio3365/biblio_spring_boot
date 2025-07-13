@@ -18,7 +18,8 @@
             <ul>
                 <li><a th:href="@{/pret/form}">Creer un pret</a></li>
                 <li><a th:href="@{/rendre/form}">Rendre un pret</a></li>
-                <li><a th:href="@{/livres}">Voir reservation</a></li>
+                <li><a th:href="@{/reservation/en_attente}">Voir les reservation</a></li>
+                <li><a th:href="@{/reservation/en_pret}">Transformer un reservation en pret</a></li>
                 <li><a th:href="@{/logout}">Déconnexion</a></li>
             </ul>
         </nav>
@@ -27,7 +28,7 @@
     <div th:if="${role.nom == 'adherent'}">
         <nav>
             <ul>
-                <li><a th:href="@{/utilisateurs}">Reserver un livre</a></li>
+                <li><a th:href="@{/reservation/reserver}">Reserver un livre</a></li>
                 <li><a th:href="@{/livres}">Prolonger mes pret</a></li>
                 <li><a th:href="@{/logout}">Déconnexion</a></li>
             </ul>

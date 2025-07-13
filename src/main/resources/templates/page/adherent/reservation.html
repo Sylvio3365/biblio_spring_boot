@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Réservation d'un livre</title>
+</head>
+
+<body>
+
+    <h2>📖 Réserver un exemplaire</h2>
+
+    <!-- ✅ Formulaire de réservation -->
+    <form th:action="@{/reservation/save}" method="post">
+
+        <label for="idExemplaire">Exemplaire :</label>
+        <select name="idExemplaire" id="idExemplaire" required>
+            <option value="">-- Sélectionner un exemplaire --</option>
+            <option th:each="ex : ${exemplaires}" th:value="${ex.idexemplaire}"
+                th:text="${ex.livre.titre + ' - ' + ex.numero}">
+            </option>
+        </select>
+        <br><br>
+
+        <label for="datepret">Date du prêt souhaitée :</label>
+        <input type="date" id="datepret" name="datepret" required>
+        <br><br>
+
+        <button type="submit">Réserver</button>
+    </form>
+    <!-- ✅ Affichage des messages -->
+    <div th:if="${error}" style="color: red;">
+        <p th:text="${error}"></p>
+    </div>
+    <div th:if="${success}" style="color: green;">
+        <p th:text="${success}"></p>
+    </div>
+    <a th:href="@{/goAccueil}">Retour</a>
+</body>
+
+</html>

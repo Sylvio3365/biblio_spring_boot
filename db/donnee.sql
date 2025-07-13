@@ -178,3 +178,38 @@ INSERT INTO
         dateheure
     )
 VALUES (2, 2, NOW());
+
+INSERT INTO
+    actif (debut, fin, idadherent)
+VALUES (
+        '2025-06-01 08:00:00',
+        '2025-12-31 23:59:59',
+        1
+    );
+
+INSERT INTO
+    abonnement (debut, fin, idadherent)
+VALUES (
+        '2025-06-01 08:00:00',
+        '2025-12-31 23:59:59',
+        1
+    );
+
+INSERT INTO
+    actif (debut, fin, idadherent)
+VALUES (
+        '2025-06-01 08:00:00',
+        '2025-12-31 23:59:59',
+        1
+    );
+
+INSERT INTO
+    sanction (debut, fin, idadherent)
+VALUES (
+        '2025-06-01 08:00:00',
+        '2025-12-31 23:59:59',
+        1
+    );
+
+SELECT * FROM exemplaire;
+SELECT * from etatexemplaire;

@@ -191,3 +191,12 @@ CREATE TABLE etatexemplaire (
     FOREIGN KEY (idetat) REFERENCES etat (idetat),
     FOREIGN KEY (idexemplaire) REFERENCES exemplaire (idexemplaire)
 );
+
+CREATE TABLE abonnement (
+    idabonnement INT AUTO_INCREMENT,
+    debut DATETIME,
+    fin DATETIME,
+    idadherent INT NOT NULL,
+    PRIMARY KEY (idabonnement),
+    FOREIGN KEY (idadherent) REFERENCES adherent (idadherent)
+);

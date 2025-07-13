@@ -33,9 +33,28 @@
 
         <br><br>
 
+        <!-- Sélection de l'exemplaire -->
+        <label for="exemplaire">Exemplaire :</label>
+        <select name="idExemplaire" id="exemplaire" required>
+            <option value="" disabled selected>-- Choisir un exemplaire --</option>
+            <option th:each="ex : ${exemplaires}" th:value="${ex.idexemplaire}"
+                th:text="'Livre : ' + ${ex.livre.titre} + ' | Exemplaire n°' + ${ex.numero}">
+            </option>
+
+        </select>
+
+        <br><br>
+
         <!-- Bouton de soumission -->
         <button type="submit">Valider</button>
     </form>
+    <div th:if="${error}" style="color: red;">
+        <p th:text="${error}"></p>
+    </div>
+
+    <div th:if="${success}" style="color: green;">
+        <p th:text="${success}"></p>
+    </div>
 
 </body>
 

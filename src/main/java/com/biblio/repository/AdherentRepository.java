@@ -22,4 +22,12 @@ public interface AdherentRepository extends JpaRepository<Adherent, Long> {
                 AND CURRENT_TIMESTAMP BETWEEN a.debut AND a.fin
             """)
     boolean isActif(@Param("idAdherent") Long idAdherent);
+
+    @Query("""
+                SELECT CASE WHEN COUNT(ab) > 0 THEN true ELSE false END
+                FROM Abonnement ab
+                WHERE ab.adherent.id = :idAdherent
+                AND CURRENT_TIMESTAMP BETWEEN ab.debut AND ab.fin
+            """)
+    boolean isAbonne(@Param("idAdherent") Long idAdherent);
 }

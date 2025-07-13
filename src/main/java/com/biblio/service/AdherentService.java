@@ -28,4 +28,27 @@ public class AdherentService {
     public Adherent findById(Long idadherent) {
         return adherentRepository.findById(idadherent).orElse(null);
     }
+
+    public String checkAdherent(Long idadherent) {
+        boolean estSanctionne = adherentRepository.isSanctioned(idadherent);
+        boolean estActif = adherentRepository.isActif(idadherent);
+        boolean estAbonne = adherentRepository.isAbonne(idadherent);
+        Adherent a = adherentRepository.findById(idadherent).orElse(null);
+        if (a == null) {
+            return "❌ Adhérent non trouvé";
+        } else if (estSanctionne) {
+            return "⛔ Adhérent sanctionné – Prêt refusé";
+        } else if (!estActif) {
+            return "⛔ Adhérent inactif – Prêt refusé";
+        } else if (!estAbonne) {
+            return "⛔ Adhérent non abonné – Prêt refusé";
+        }
+        return "✅ Adhérent valide – Prêt autorisé";
+    }
+
+    public boolean isPretAutorise(Long idadherent) {
+        String message = checkAdherent(idadherent);
+        return message.contains("✅");
+    }
+
 }

@@ -16,12 +16,12 @@ Le bibliothécaire sélectionne un adhérent valide et un exemplaire disponible,
 
 ### Règles de gestion
 
-1. L’adhérent existe dans la base de données.
-2. L’adhérent est abonné.
-3. L’adhérent est actif.
-4. L’adhérent n’est pas sanctionné.
-5. L’exemplaire est disponible.
-6. Le type de prêt est compatible avec les règles du livre.
+1. L’adhérent existe dans la base de données. ✅ 
+2. L’adhérent est abonné.✅
+3. L’adhérent est actif.✅
+4. L’adhérent n’est pas sanctionné.✅
+5. L’exemplaire est disponible.✅
+6. Le type de prêt est compatible avec les règles de pret de l'exempalaire.✅
 7. Le contenu du livre est adapté à l’âge de l’adhérent (ex : livre +18 interdit aux mineurs).
 8. Le nombre de prêts à domicile en cours ne dépasse pas le quota autorisé selon le profil de l’adhérent.
 

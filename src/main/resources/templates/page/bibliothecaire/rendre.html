@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Liste des prêts non rendus</title>
+</head>
+
+<body>
+
+    <h2>📚 Liste des prêts en cours (non rendus)</h2>
+
+    <table border="1" cellpadding="10" cellspacing="0">
+        <thead>
+            <tr>
+                <th>N°</th>
+                <th>Adhérent</th>
+                <th>Livre</th>
+                <th>Exemplaire</th>
+                <th>Date de début</th>
+                <th>Date de fin prévue</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="pret, iterStat : ${prets}">
+                <td th:text="${iterStat.index + 1}">1</td>
+                <td th:text="${pret.adherent.nom + ' ' + pret.adherent.prenom}">Nom Prénom</td>
+                <td th:text="${pret.exemplaire.livre.titre}">Titre Livre</td>
+                <td th:text="${pret.exemplaire.numero}">Numéro Exemplaire</td>
+                <td th:text="${pret.debut.toLocalDate()}">2025-07-13</td>
+                <td th:text="${pret.fin.toLocalDate()}">2025-07-20</td>
+                <td>
+                    <form th:action="@{/rendre/save}" method="post">
+                        <input type="hidden" name="idPret" th:value="${pret.idpret}" />
+                        <button type="submit">Rendre</button>
+                    </form>
+                </td>
+            </tr>
+            <tr th:if="${prets.size() == 0}">
+                <td colspan="7">Aucun prêt en cours.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- ✅ Message de retour (succès ou erreur) -->
+    <div style="margin-top:20px;">
+        <p th:if="${message}" th:text="${message}" style="color: green;"></p>
+    </div>
+    <a th:href="@{/goAccueil}">Retour</a>
+</body>
+
+</html>

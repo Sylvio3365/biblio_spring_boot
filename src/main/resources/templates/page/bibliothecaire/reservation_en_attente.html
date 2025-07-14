@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Réservations en attente</title>
+</head>
+
+<body>
+
+    <h2>📌 Réservations en attente</h2>
+
+    <table border="1" cellpadding="10" cellspacing="0">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Adhérent</th>
+                <th>Exemplaire</th>
+                <th>Date souhaitée</th>
+                <th>Date de demande</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="res, iterStat : ${reservations}">
+                <td th:text="${iterStat.index + 1}">1</td>
+                <td th:text="${res.adherent.nom + ' ' + res.adherent.prenom}">Nom Prénom</td>
+                <td th:text="${res.exemplaire.livre.titre + ' - ' + res.exemplaire.numero}">Livre - Numéro</td>
+                <td th:text="${#temporals.format(res.datepret, 'dd/MM/yyyy')}">Date Prêt</td>
+                <td th:text="${#temporals.format(res.datereservation, 'dd/MM/yyyy HH:mm')}">Date Réservation</td>
+                <td>
+                    <form th:action="@{/reservation/valider}" method="post" style="display:inline;">
+                        <input type="hidden" name="idReservation" th:value="${res.idreservation}" />
+                        <button type="submit">✅ Valider</button>
+                    </form>
+                    <form th:action="@{/reservation/annuler}" method="post" style="display:inline;">
+                        <input type="hidden" name="idReservation" th:value="${res.idreservation}" />
+                        <button type="submit">❌ Annuler</button>
+                    </form>
+                </td>
+            </tr>
+
+            <tr th:if="${reservations.size() == 0}">
+                <td colspan="6">Aucune réservation en attente.</td>
+            </tr>
+        </tbody>
+    </table>
+    <div th:if="${success}" style="color: green;">
+        <span th:text="${success}"></span>
+    </div>
+    <div th:if="${error}" style="color: rgb(249, 173, 42);">
+        <span th:text="${error}"></span>
+    </div>
+    
+    <a th:href="@{/goAccueil}">Retour à l'accueil</a>
+</body>
+
+</html>

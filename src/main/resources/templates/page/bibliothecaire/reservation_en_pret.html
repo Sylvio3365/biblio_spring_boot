@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Réservations validées à transformer en prêt</title>
+</head>
+
+<body>
+    <h2>📅 Réservations validées à transformer en prêt</h2>
+    <!-- ✅ Affichage clair de la date choisie -->
+    <p><strong>Date sélectionnée :</strong> <span th:text="${datepret}">2025-07-14</span></p>
+    <!-- 🔎 Formulaire de sélection de date -->
+    <form th:action="@{/reservation/en_pret}" method="get">
+        <label for="datepret">Choisir la date de prêt :</label>
+        <input type="date" id="datepret" name="datepret" th:value="${datepret}" required>
+        <button type="submit">Afficher</button>
+    </form>
+
+    <br>
+
+    <!-- 📝 Tableau des réservations validées -->
+    <table border="1" cellpadding="10" cellspacing="0">
+        <thead>
+            <tr>
+                <th>N°</th>
+                <th>Adhérent</th>
+                <th>Exemplaire</th>
+                <th>Livre</th>
+                <th>Date prévue</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="reservation, stat : ${reservations}">
+                <td th:text="${stat.index + 1}">1</td>
+                <td th:text="${reservation.adherent.nom + ' ' + reservation.adherent.prenom}">Nom Prénom</td>
+                <td th:text="${reservation.exemplaire.numero}">EX123</td>
+                <td th:text="${reservation.exemplaire.livre.titre}">Titre du livre</td>
+                <td th:text="${reservation.datepret}">2025-07-14</td>
+                <td>
+                    <form th:action="@{/reservation/transformer}" method="post">
+                        <input type="hidden" name="idReservation" th:value="${reservation.idreservation}" />
+
+                        <select name="idTypePret" required>
+                            <option value="">-- Type de prêt --</option>
+                            <option th:each="tp : ${typepret}" th:value="${tp.idtypepret}" th:text="${tp.nom}">
+                            </option>
+                        </select>
+
+                        <button type="submit">📘 Transformer en prêt</button>
+                    </form>
+
+                </td>
+            </tr>
+
+            <tr th:if="${reservations.size() == 0}">
+                <td colspan="6">Aucune réservation validée pour cette date.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <br>
+    <div th:if="${error}" style="color: red;">
+        <p th:text="${error}"></p>
+    </div>
+
+    <div th:if="${success}" style="color: green;">
+        <p th:text="${success}"></p>
+    </div>
+    <a th:href="@{/goAccueil}">Retour à l'accueil</a>
+</body>
+
+</html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Mes prêts en cours</title>
+</head>
+
+<body>
+    <h2>📚 Mes prêts en cours</h2>
+
+    <!-- 📝 Tableau des prêts -->
+    <table border="1" cellpadding="10" cellspacing="0">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Titre du livre</th>
+                <th>Numéro exemplaire</th>
+                <th>Date de début</th>
+                <th>Date de fin prévue</th>
+                <th>Type de prêt</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="dto, stat : ${mesprets}">
+                <td th:text="${stat.count}">1</td>
+                <td th:text="${dto.pret.exemplaire.livre.titre}">Titre</td>
+                <td th:text="${dto.pret.exemplaire.numero}">EX123</td>
+                <td th:text="${#temporals.format(dto.pret.debut, 'dd/MM/yyyy')}">01/01/2025</td>
+                <td th:text="${#temporals.format(dto.pret.fin, 'dd/MM/yyyy')}">15/01/2025</td>
+                <td th:text="${dto.pret.typepret.nom}">Normal</td>
+                <td>
+                    <!-- ✅ Cas 1 : prêt prolongeable, pas encore prolongé -->
+                    <div th:if="${dto.pret.typepret.idtypepret != 2 and dto.prolongement == null}">
+                        <form th:action="@{/prolongement/demande}" method="post">
+                            <input type="hidden" name="idPret" th:value="${dto.pret.idpret}" />
+                            <label for="nouveaufin">Nouvelle date de fin :</label>
+                            <input type="date" id="nouveaufin" name="nouveaufin" required />
+                            <button type="submit">⏳ Prolonger</button>
+                        </form>
+                    </div>
+
+                    <!-- ✅ Cas 2 : prêt déjà prolongé -->
+                    <div th:if="${dto.prolongement != null}">
+                        ✅ Prolongé jusqu'au :
+                        <span
+                            th:text="${#temporals.format(dto.prolongement.nouveaufin, 'dd/MM/yyyy')}">20/01/2025</span>
+                        <br />
+                        🟡 Statut :
+                        <span th:text="${dto.statutProlongement.statut.nom}">En attente</span>
+                    </div>
+
+                    <!-- ✅ Cas 3 : prêt non prolongeable -->
+                    <div th:if="${dto.pret.typepret.idtypepret == 2}">
+                        Aucune action possible
+                    </div>
+                </td>
+            </tr>
+
+            <tr th:if="${#lists.isEmpty(mesprets)}">
+                <td colspan="7">Aucun prêt en cours.</td>
+            </tr>
+
+        </tbody>
+    </table>
+
+    <!-- ✅ Messages -->
+    <div th:if="${error}" style="color: red;">
+        <p th:text="${error}">Erreur</p>
+    </div>
+    <div th:if="${success}" style="color: green;">
+        <p th:text="${success}">Succès</p>
+    </div>
+
+    <br />
+    <a th:href="@{/goAccueil}">🏠 Retour à l'accueil</a>
+</body>
+
+</html>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Prolongements en attente</title>
+</head>
+
+<body>
+    <h2>📌 Prolongements en attente</h2>
+
+    <table border="1" cellpadding="10" cellspacing="0">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Adhérent</th>
+                <th>Livre</th>
+                <th>Numéro exemplaire</th>
+                <th>Date début prêt</th>
+                <th>Date fin actuelle</th>
+                <th>Nouvelle date demandée</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="prol, stat : ${prolongements}">
+                <td th:text="${stat.count}">1</td>
+                <td th:text="${prol.pret.adherent.nom + ' ' + prol.pret.adherent.prenom}">Nom Adhérent</td>
+                <td th:text="${prol.pret.exemplaire.livre.titre}">Titre</td>
+                <td th:text="${prol.pret.exemplaire.numero}">EX123</td>
+                <td th:text="${#temporals.format(prol.pret.debut, 'dd/MM/yyyy')}">01/01/2025</td>
+                <td th:text="${#temporals.format(prol.pret.fin, 'dd/MM/yyyy')}">15/01/2025</td>
+                <td th:text="${#temporals.format(prol.nouveaufin, 'dd/MM/yyyy')}">20/01/2025</td>
+                <td>
+                    <form th:action="@{/prolongement/valider}" method="post" style="display:inline;">
+                        <input type="hidden" name="idProlongement" th:value="${prol.idprolongement}" />
+                        <button type="submit">✅ Valider</button>
+                    </form>
+                    <form th:action="@{/prolongement/refuser}" method="post" style="display:inline;">
+                        <input type="hidden" name="idProlongement" th:value="${prol.idprolongement}" />
+                        <button type="submit">❌ Refuser</button>
+                    </form>
+                </td>
+            </tr>
+
+            <tr th:if="${prolongements != null and #lists.isEmpty(prolongements)}">
+                <td colspan="6">Aucun prolongement en attente.</td>
+            </tr>
+
+        </tbody>
+    </table>
+    <div th:if="${success}" style="color: green;">
+        <span th:text="${success}"></span>
+    </div>
+    <div th:if="${error}" style="color: red;">
+        <span th:text="${error}"></span>
+    </div>
+    <br>
+    <a th:href="@{/goAccueil}">🏠 Retour à l'accueil</a>
+</body>
+
+</html>

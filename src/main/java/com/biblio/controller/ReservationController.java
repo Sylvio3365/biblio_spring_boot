@@ -47,25 +47,27 @@ public class ReservationController {
     }
 
     @PostMapping("/save")
-    public String saveReservation(@RequestParam("idExemplaire") Long idExemplaire,
+    public String saveReservation(
+            @RequestParam("idExemplaire") Long idExemplaire,
             @RequestParam("datepret") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate datePret,
             HttpSession session,
             Model model) {
+
         Utilisateur utilisateur = (Utilisateur) session.getAttribute("utilisateur");
 
         if (utilisateur == null) {
-            return "redirect:/";
+            return "redirect:/"; // 🔐 Redirection vers la page de login si non connecté
         }
 
-        String message = reservationService.reserver(utilisateur.getIdutilisateur(), idExemplaire, datePret);
-
-        if (message.contains("✅")) {
+        try {
+            String message = reservationService.reserver(utilisateur.getIdutilisateur(), idExemplaire, datePret);
             model.addAttribute("success", message);
-        } else {
-            model.addAttribute("error", message);
+        } catch (Exception e) {
+            model.addAttribute("error", e.getMessage());
         }
 
         model.addAttribute("exemplaires", exemplaireService.findAll());
+
         return "page/adherent/reservation";
     }
 
@@ -118,7 +120,7 @@ public class ReservationController {
             @RequestParam("idTypePret") Long idTypePret, Model model) {
 
         String resultat = reservationService.transformerEnPret(idReservation, idTypePret);
-        
+
         if (!resultat.startsWith("✅")) {
             model.addAttribute("error", resultat);
         } else {

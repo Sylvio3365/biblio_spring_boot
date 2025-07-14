@@ -46,29 +46,32 @@ public class ReservationService {
     }
 
     public String transformerEnPret(Long idreservation, Long idtypepret) {
-        
         Reservation r = this.findById(idreservation);
         if (r == null) {
             return "⛔ Réservation introuvable.";
         }
 
-        // 🟢 Tenter de créer le prêt
-        String message = pretService.traiterPret(
-                r.getAdherent().getIdadherent(),
-                idtypepret,
-                r.getExemplaire().getIdexemplaire());
+        try {
+            // 🟢 Tenter de créer le prêt
+            String message = pretService.traiterPret(
+                    r.getAdherent().getIdadherent(),
+                    idtypepret,
+                    r.getExemplaire().getIdexemplaire());
 
-        // ✅ Si succès → enregistrer le nouveau statut "Transformé en prêt"
-        if (message.startsWith("✅")) {
+            // ✅ Si succès → enregistrer le nouveau statut "Transformé en prêt"
             LocalDateTime today = LocalDateTime.now().plusHours(3);
             StatutReservation sr = new StatutReservation();
             sr.setStatut(new Statut(3L, "Transformé en prêt")); // Statut ID 3
             sr.setDatemodif(today);
             sr.setReservation(r);
             statutReservationService.save(sr);
-        }
 
-        return message;
+            return message;
+
+        } catch (Exception e) {
+            // ❌ Erreur lors de la tentative de prêt
+            return e.getMessage(); // ou logguer e pour les logs serveur
+        }
     }
 
     public String annulerReservation(Long idreservation) {
@@ -113,13 +116,13 @@ public class ReservationService {
                 + r.getAdherent().getPrenom() + ".";
     }
 
-    public String reserver(Long idUtilisateur, Long idExemplaire, LocalDate datePret) {
+    public String reserver(Long idUtilisateur, Long idExemplaire, LocalDate datePret) throws Exception {
         // 1️⃣ Vérifier les données d'entrée
         Adherent adherent = adherentService.findByIdutilisateur(idUtilisateur);
         Exemplaire exemplaire = exemplaireService.findById(idExemplaire);
 
         if (adherent == null || exemplaire == null) {
-            return "⛔ Données invalides – veuillez vérifier vos sélections.";
+            throw new Exception("⛔ Données invalides – veuillez vérifier vos sélections.");
         }
 
         // 2️⃣ Vérifier le quota de réservations en attente
@@ -127,18 +130,18 @@ public class ReservationService {
         int nbReservationsEnAttente = adherentService.countReservationEnAttente(adherent.getIdadherent());
 
         if (nbReservationsEnAttente >= quota) {
-            return "⛔ Quota de réservation atteint (" + quota + " en attente non validées).";
+            throw new Exception("⛔ Quota de réservation atteint (" + quota + " en attente non validées).");
         }
 
         // 3️⃣ Vérifier si l’adhérent est actif, abonné et non sanctionné
         String messageAdherent = adherentService.checkAdherent(adherent.getIdadherent());
         if (!messageAdherent.contains("✅")) {
-            return messageAdherent;
+            throw new Exception(messageAdherent);
         }
 
         // 4️⃣ Vérifier la disponibilité de l'exemplaire
         if (!exemplaireService.estDisponible(idExemplaire)) {
-            return "⛔ L'exemplaire sélectionné n'est pas disponible.";
+            throw new Exception("⛔ L'exemplaire sélectionné n'est pas disponible.");
         }
 
         // 5️⃣ Vérifier l'âge minimum requis si défini dans la règle du livre
@@ -147,10 +150,13 @@ public class ReservationService {
             int age = adherent.getAge();
             int ageMin = regleLivre.getAgemin();
             if (age < ageMin) {
-                return "⛔ Âge requis : " + ageMin + " ans – Âge actuel : " + age + " ans.";
+                throw new Exception("⛔ Âge requis : " + ageMin + " ans – Âge actuel : " + age + " ans.");
             }
         }
+
+        // 6️⃣ Création de la réservation
         LocalDateTime today = LocalDateTime.now().plusHours(3);
+
         Reservation r = new Reservation();
         r.setAdherent(adherent);
         r.setDatepret(datePret);
@@ -164,6 +170,7 @@ public class ReservationService {
         sr.setReservation(r);
         statutReservationService.save(sr);
 
+        // ✅ Succès
         return "✅ Réservation autorisée – vous pouvez la finaliser.";
     }
 

@@ -34,7 +34,6 @@ public class PretController {
     @Autowired
     private PretService pretService;
 
-
     @GetMapping("/form")
     public String newPret(Model model) {
         List<Adherent> adherents = adherentService.findAll();
@@ -53,17 +52,18 @@ public class PretController {
             @RequestParam("idExemplaire") Long idExemplaire,
             Model model) {
 
-        // Pour réaffichage des listes
+        // 🔁 Réaffichage des listes pour la page
         model.addAttribute("adherents", adherentService.findAll());
         model.addAttribute("typeprets", typePretService.findAll());
         model.addAttribute("exemplaires", exemplaireService.findAll());
 
-        String resultat = pretService.traiterPret(idAdherent, idTypePret, idExemplaire);
-        if (!resultat.startsWith("✅")) {
-            model.addAttribute("error", resultat);
-        } else {
+        try {
+            String resultat = pretService.traiterPret(idAdherent, idTypePret, idExemplaire);
             model.addAttribute("success", resultat);
+        } catch (Exception e) {
+            model.addAttribute("error", e.getMessage());
         }
+
         return "page/bibliothecaire/pret";
     }
 

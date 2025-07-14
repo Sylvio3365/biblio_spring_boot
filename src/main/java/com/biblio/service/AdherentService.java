@@ -37,27 +37,33 @@ public class AdherentService {
         return adherentRepository.findByIdutilisateur(iduser);
     }
 
-    public String checkAdherent(Long idadherent) {
+    public String checkAdherent(Long idadherent) throws Exception {
+        Adherent a = adherentRepository.findById(idadherent).orElse(null);
+
+        if (a == null) {
+            throw new Exception("❌ Adhérent non trouvé.");
+        }
+
         boolean estSanctionne = adherentRepository.isSanctioned(idadherent);
         boolean estActif = adherentRepository.isActif(idadherent);
         boolean estAbonne = adherentRepository.isAbonne(idadherent);
-        Adherent a = adherentRepository.findById(idadherent).orElse(null);
-        if (a == null) {
-            return "❌ Adhérent non trouvé";
-        }
+
         if (estSanctionne) {
-            return "⛔ Adhérent sanctionné – Prêt refusé";
+            throw new Exception("⛔ Adhérent sanctionné – Prêt refusé.");
         }
+
         if (!estActif) {
-        return "⛔ Adhérent inactif – Prêt refusé";
+            throw new Exception("⛔ Adhérent inactif – Prêt refusé.");
         }
+
         if (!estAbonne) {
-            return "⛔ Adhérent non abonné – Prêt refusé";
+            throw new Exception("⛔ Adhérent non abonné – Prêt refusé.");
         }
+
         return "✅ Adhérent valide – Prêt autorisé";
     }
 
-    public boolean isPretAutorise(Long idadherent) {
+    public boolean isPretAutorise(Long idadherent) throws Exception {
         String message = checkAdherent(idadherent);
         return message.contains("✅");
     }

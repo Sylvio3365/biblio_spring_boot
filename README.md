@@ -48,7 +48,7 @@ Le bibliothécaire sélectionne un adhérent valide et un exemplaire disponible,
 - **Acteurs** :
   - Adhérent (effectue la demande)
   - Bibliothécaire (valide ou rejette)
-- **Entrée** : ID du prêt concerné
+- **Entrée** : ID du prêt concerné et nouveau date fin du rendu
 
 ### Scénario nominal
 
@@ -58,6 +58,7 @@ L’adhérent demande la prolongation d’un prêt. Le bibliothécaire analyse l
 
 1. L’adhérent ne doit pas être sanctionné.
 2. Le nombre de prolongations en cours ne doit pas dépasser le maximum autorisé selon le profil de l’adhérent.
+3. Le nouveau date du rendu doit etre 
 
 ### Scénarios alternatifs
 

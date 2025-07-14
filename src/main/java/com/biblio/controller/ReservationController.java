@@ -56,7 +56,7 @@ public class ReservationController {
         Utilisateur utilisateur = (Utilisateur) session.getAttribute("utilisateur");
 
         if (utilisateur == null) {
-            return "redirect:/"; // 🔐 Redirection vers la page de login si non connecté
+            return "redirect:/";
         }
 
         try {
@@ -67,7 +67,6 @@ public class ReservationController {
         }
 
         model.addAttribute("exemplaires", exemplaireService.findAll());
-
         return "page/adherent/reservation";
     }
 
@@ -106,7 +105,6 @@ public class ReservationController {
         if (datepret == null) {
             datepret = LocalDate.now();
         }
-
         List<Reservation> reservations = reservationService.findAllReservationsValider(datepret);
         List<TypePret> typepret = typePretService.findAll();
         model.addAttribute("reservations", reservations);

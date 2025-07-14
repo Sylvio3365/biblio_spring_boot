@@ -15,4 +15,13 @@ public interface PretRepository extends JpaRepository<Pret, Long> {
                 )
             """)
     List<Pret> getPretNonRendu();
+
+    @Query("""
+                SELECT p FROM Pret p
+                WHERE p.adherent.idadherent = :idAdherent
+                AND p.idpret NOT IN (
+                    SELECT r.pret.idpret FROM Rendre r
+                )
+            """)
+    List<Pret> getPretNonRenduByIdAdherent(Long idAdherent);
 }

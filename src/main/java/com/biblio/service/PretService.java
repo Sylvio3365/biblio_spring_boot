@@ -5,11 +5,15 @@ import com.biblio.model.Etat;
 import com.biblio.model.EtatExemplaire;
 import com.biblio.model.Exemplaire;
 import com.biblio.model.Pret;
+import com.biblio.model.Prolongement;
 import com.biblio.model.RegleLivre;
+import com.biblio.model.StatutProlongement;
 import com.biblio.model.TypePret;
+import com.biblio.model.utils.PretAvecProlongementDTO;
 import com.biblio.repository.PretRepository;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +32,10 @@ public class PretService {
     private ExemplaireService exemplaireService;
     @Autowired
     private EtatExemplaireService etatExemplaireService;
+    @Autowired
+    private ProlongementService prolongementService;
+    @Autowired
+    private StatutProlongementService statutProlongementService;
 
     public Pret save(Pret pret) {
         return pretRepository.save(pret);
@@ -35,6 +43,41 @@ public class PretService {
 
     public List<Pret> getPretNonRendu() {
         return pretRepository.getPretNonRendu();
+    }
+
+    public List<PretAvecProlongementDTO> getPretNonRenduAvecProlongement(Long idutilisateur) throws Exception {
+        Adherent a = adherentService.findByIdutilisateur(idutilisateur);
+        if (a == null) {
+            throw new Exception("⛔ Adhérent non trouvé.");
+        }
+
+        Long idadherent = a.getIdadherent();
+        List<Pret> prets = pretRepository.getPretNonRenduByIdAdherent(idadherent);
+
+        List<PretAvecProlongementDTO> resultat = new ArrayList<>();
+
+        for (Pret p : prets) {
+            Prolongement prolongement = prolongementService.findByIdPret(p.getIdpret());
+            StatutProlongement statut = null;
+
+            if (prolongement != null) {
+                statut = statutProlongementService.findDernierStatutByIdProlongement(prolongement.getIdprolongement());
+            }
+
+            PretAvecProlongementDTO dto = new PretAvecProlongementDTO(p, prolongement, statut);
+            resultat.add(dto);
+        }
+
+        return resultat;
+    }
+
+    public List<Pret> getPretNonRenduByIdAdherent(Long idutilisateur) throws Exception {
+        Adherent a = adherentService.findByIdutilisateur(idutilisateur);
+        if (a == null) {
+            throw new Exception("Adherent non trouvee");
+        }
+        Long idadherent = a.getIdadherent();
+        return pretRepository.getPretNonRenduByIdAdherent(idadherent);
     }
 
     public Pret findById(Long id) {
@@ -59,7 +102,7 @@ public class PretService {
             throw new Exception("⛔ Quota de prêt atteint (" + quotaPret + " en cours non rendus).");
         }
 
-        // 3️⃣ Vérifier les conditions liées à l’adhérent (avec throw)
+        // 3️⃣ Vérifier les conditions liées à l’adhérent
         adherentService.checkAdherent(idAdherent); // Cette méthode jette déjà les exceptions nécessaires
 
         // 4️⃣ Vérifier que l’exemplaire est disponible

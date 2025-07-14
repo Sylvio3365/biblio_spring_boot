@@ -212,4 +212,25 @@ VALUES (
     );
 
 SELECT * FROM exemplaire;
+
 SELECT * from etatexemplaire;
+
+CREATE OR REPLACE VIEW exemplaire_detail AS
+SELECT
+    eex.idetatexemplaire,
+    eex.dateheure,
+    ex.idexemplaire,
+    ex.numero AS numero_exemplaire,
+    et.idetat,
+    et.nom AS nom_etat
+FROM
+    etatexemplaire eex
+    JOIN etat et ON eex.idetat = et.idetat
+    JOIN exemplaire ex ON eex.idexemplaire = ex.idexemplaire
+WHERE
+    eex.dateheure = (
+        SELECT MAX(sub.dateheure)
+        FROM etatexemplaire sub
+        WHERE
+            sub.idexemplaire = eex.idexemplaire
+    );

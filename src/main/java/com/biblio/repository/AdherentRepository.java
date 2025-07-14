@@ -59,4 +59,20 @@ public interface AdherentRepository extends JpaRepository<Adherent, Long> {
                 ) = 1
             """)
     int countReservationEnAttente(@Param("idAdherent") Long idAdherent);
+
+    @Query(value = """
+            SELECT COUNT(p.idprolongement)
+            FROM prolongement p
+            JOIN pret pr ON p.idpret = pr.idpret
+            WHERE pr.idadherent = :idAdherent
+            AND (
+                SELECT ps.idstatut
+                FROM prolongementstatut ps
+                WHERE ps.idprolongement = p.idprolongement
+                ORDER BY ps.datemodif DESC
+                LIMIT 1
+            ) = 1
+            """, nativeQuery = true)
+    int getNbProlongementEnAttente(@Param("idAdherent") Long idAdherent);
+
 }

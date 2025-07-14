@@ -26,4 +26,5 @@ public class Pret {
     @ManyToOne
     @JoinColumn(name = "idadherent", nullable = false)
     private Adherent adherent;
+
 }

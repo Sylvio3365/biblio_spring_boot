@@ -72,4 +72,7 @@ public class AdherentService {
         return adherentRepository.getNbPretNonRendu(idadherent);
     }
 
+    public int getNbProlongementEnAttente(Long idadherent) {
+        return adherentRepository.getNbProlongementEnAttente(idadherent);
+    }
 }

@@ -12,11 +12,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.biblio.model.Adherent;
 import com.biblio.model.Exemplaire;
+import com.biblio.model.Pret;
 import com.biblio.model.TypePret;
+import com.biblio.model.Utilisateur;
+import com.biblio.model.utils.PretAvecProlongementDTO;
 import com.biblio.service.AdherentService;
 import com.biblio.service.ExemplaireService;
 import com.biblio.service.PretService;
 import com.biblio.service.TypePretService;
+
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 @RequestMapping("/pret")
@@ -33,6 +38,25 @@ public class PretController {
 
     @Autowired
     private PretService pretService;
+
+    @GetMapping("/mes_prets")
+    public String mesPrets(Model model, HttpSession session) {
+        Utilisateur utilisateur = (Utilisateur) session.getAttribute("utilisateur");
+
+        if (utilisateur == null) {
+            return "redirect:/";
+        }
+
+        try {
+            List<PretAvecProlongementDTO> mesprets = pretService
+                    .getPretNonRenduAvecProlongement(utilisateur.getIdutilisateur());
+            model.addAttribute("mesprets", mesprets);
+        } catch (Exception e) {
+            model.addAttribute("error", e.getMessage());
+        }
+
+        return "page/adherent/mes_prets";
+    }
 
     @GetMapping("/form")
     public String newPret(Model model) {
@@ -52,7 +76,6 @@ public class PretController {
             @RequestParam("idExemplaire") Long idExemplaire,
             Model model) {
 
-        // 🔁 Réaffichage des listes pour la page
         model.addAttribute("adherents", adherentService.findAll());
         model.addAttribute("typeprets", typePretService.findAll());
         model.addAttribute("exemplaires", exemplaireService.findAll());

@@ -9,12 +9,10 @@ import org.springframework.stereotype.Service;
 
 import com.biblio.model.Adherent;
 import com.biblio.model.Exemplaire;
-import com.biblio.model.Pret;
 import com.biblio.model.RegleLivre;
 import com.biblio.model.Reservation;
 import com.biblio.model.Statut;
 import com.biblio.model.StatutReservation;
-import com.biblio.model.TypePret;
 import com.biblio.repository.ReservationRepository;
 
 @Service
@@ -48,6 +46,7 @@ public class ReservationService {
     }
 
     public String transformerEnPret(Long idreservation, Long idtypepret) {
+        
         Reservation r = this.findById(idreservation);
         if (r == null) {
             return "⛔ Réservation introuvable.";
@@ -71,7 +70,7 @@ public class ReservationService {
 
         return message;
     }
-    
+
     public String annulerReservation(Long idreservation) {
         LocalDateTime today = LocalDateTime.now().plusHours(3);
         Reservation r = this.findById(idreservation);

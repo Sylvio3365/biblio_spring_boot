@@ -39,7 +39,7 @@ public class AdherentService {
 
     public String checkAdherent(Long idadherent) {
         boolean estSanctionne = adherentRepository.isSanctioned(idadherent);
-        // boolean estActif = adherentRepository.isActif(idadherent);
+        boolean estActif = adherentRepository.isActif(idadherent);
         boolean estAbonne = adherentRepository.isAbonne(idadherent);
         Adherent a = adherentRepository.findById(idadherent).orElse(null);
         if (a == null) {
@@ -48,9 +48,9 @@ public class AdherentService {
         if (estSanctionne) {
             return "⛔ Adhérent sanctionné – Prêt refusé";
         }
-        // if (!estActif) {
-        // return "⛔ Adhérent inactif – Prêt refusé";
-        // }
+        if (!estActif) {
+        return "⛔ Adhérent inactif – Prêt refusé";
+        }
         if (!estAbonne) {
             return "⛔ Adhérent non abonné – Prêt refusé";
         }

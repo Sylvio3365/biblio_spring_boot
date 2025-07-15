@@ -42,7 +42,7 @@ public class ReservationService {
     }
 
     public List<Reservation> findAllReservationsValider(LocalDate date) {
-        return reservationRepository.findAllReservationsValider(date);
+        return reservationRepository.findAllReservationsEnAttenteAvalider(date);
     }
 
     public String transformerEnPret(Long idreservation, Long idtypepret) {
@@ -61,7 +61,7 @@ public class ReservationService {
             // ✅ Si succès → enregistrer le nouveau statut "Transformé en prêt"
             LocalDateTime today = LocalDateTime.now().plusHours(3);
             StatutReservation sr = new StatutReservation();
-            sr.setStatut(new Statut(3L, "Transformé en prêt")); // Statut ID 3
+            sr.setStatut(new Statut(2L, "Valider")); // Statut ID 3
             sr.setDatemodif(today);
             sr.setReservation(r);
             statutReservationService.save(sr);

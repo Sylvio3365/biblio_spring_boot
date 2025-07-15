@@ -7,10 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import com.biblio.model.Exemplaire;
 import com.biblio.model.Reservation;
@@ -34,9 +31,16 @@ public class ReservationController {
     private TypePretService typePretService;
 
     @GetMapping("/reserver")
-    public String formReservation(Model model) {
-        List<Exemplaire> exemplaires = exemplaireService.findAll();
+    public String formReservation(Model model, HttpSession session) {
+        Utilisateur utilisateur = (Utilisateur) session.getAttribute("utilisateur");
+        if (utilisateur == null) {
+            return "redirect:/";
+        }
 
+        model.addAttribute("username", utilisateur.getNom());
+        model.addAttribute("role", utilisateur.getRole());
+
+        List<Exemplaire> exemplaires = exemplaireService.findAll();
         if (exemplaires == null || exemplaires.isEmpty()) {
             model.addAttribute("error", "Aucun exemplaire disponible pour réservation.");
         } else {
@@ -54,10 +58,12 @@ public class ReservationController {
             Model model) {
 
         Utilisateur utilisateur = (Utilisateur) session.getAttribute("utilisateur");
-
         if (utilisateur == null) {
             return "redirect:/";
         }
+
+        model.addAttribute("username", utilisateur.getNom());
+        model.addAttribute("role", utilisateur.getRole());
 
         try {
             String message = reservationService.reserver(utilisateur.getIdutilisateur(), idExemplaire, datePret);
@@ -71,40 +77,70 @@ public class ReservationController {
     }
 
     @GetMapping("/en_attente")
-    public String voirReservationEnAttente(Model m) {
+    public String voirReservationEnAttente(Model model, HttpSession session) {
+        Utilisateur utilisateur = (Utilisateur) session.getAttribute("utilisateur");
+        if (utilisateur == null)
+            return "redirect:/";
+
+        model.addAttribute("username", utilisateur.getNom());
+        model.addAttribute("role", utilisateur.getRole());
+
         List<Reservation> alls = reservationService.findAllReservationsEnAttente();
-        m.addAttribute("reservations", alls);
+        model.addAttribute("reservations", alls);
         return "page/bibliothecaire/reservation_en_attente";
     }
 
     @PostMapping("/valider")
-    public String validerReservation(@RequestParam Long idReservation, Model model) {
+    public String validerReservation(@RequestParam Long idReservation, Model model, HttpSession session) {
+        Utilisateur utilisateur = (Utilisateur) session.getAttribute("utilisateur");
+        if (utilisateur == null)
+            return "redirect:/";
+
+        model.addAttribute("username", utilisateur.getNom());
+        model.addAttribute("role", utilisateur.getRole());
+
         String message = reservationService.validerReservation(idReservation);
 
         List<Reservation> alls = reservationService.findAllReservationsEnAttente();
         model.addAttribute("reservations", alls);
-        model.addAttribute("success", message); // message de confirmation
+        model.addAttribute("success", message);
         return "page/bibliothecaire/reservation_en_attente";
     }
 
     @PostMapping("/annuler")
-    public String annulerReservation(@RequestParam Long idReservation, Model model) {
+    public String annulerReservation(@RequestParam Long idReservation, Model model, HttpSession session) {
+        Utilisateur utilisateur = (Utilisateur) session.getAttribute("utilisateur");
+        if (utilisateur == null)
+            return "redirect:/";
+
+        model.addAttribute("username", utilisateur.getNom());
+        model.addAttribute("role", utilisateur.getRole());
+
         String message = reservationService.annulerReservation(idReservation);
 
         List<Reservation> alls = reservationService.findAllReservationsEnAttente();
         model.addAttribute("reservations", alls);
-        model.addAttribute("error", message); // message d’annulation ou d’erreur
+        model.addAttribute("error", message);
         return "page/bibliothecaire/reservation_en_attente";
     }
 
     @GetMapping("/en_pret")
     public String showReservationValidee(
             @RequestParam(name = "datepret", required = false) LocalDate datepret,
-            Model model) {
+            Model model,
+            HttpSession session) {
+
+        Utilisateur utilisateur = (Utilisateur) session.getAttribute("utilisateur");
+        if (utilisateur == null)
+            return "redirect:/";
+
+        model.addAttribute("username", utilisateur.getNom());
+        model.addAttribute("role", utilisateur.getRole());
 
         if (datepret == null) {
             datepret = LocalDate.now();
         }
+
         List<Reservation> reservations = reservationService.findAllReservationsValider(datepret);
         List<TypePret> typepret = typePretService.findAll();
         model.addAttribute("reservations", reservations);
@@ -114,8 +150,18 @@ public class ReservationController {
     }
 
     @PostMapping("/transformer")
-    public String transformerEnPret(@RequestParam("idReservation") Long idReservation,
-            @RequestParam("idTypePret") Long idTypePret, Model model) {
+    public String transformerEnPret(
+            @RequestParam("idReservation") Long idReservation,
+            @RequestParam("idTypePret") Long idTypePret,
+            Model model,
+            HttpSession session) {
+
+        Utilisateur utilisateur = (Utilisateur) session.getAttribute("utilisateur");
+        if (utilisateur == null)
+            return "redirect:/";
+
+        model.addAttribute("username", utilisateur.getNom());
+        model.addAttribute("role", utilisateur.getRole());
 
         String resultat = reservationService.transformerEnPret(idReservation, idTypePret);
 
@@ -135,4 +181,31 @@ public class ReservationController {
         return "page/bibliothecaire/reservation_en_pret";
     }
 
+    @PostMapping("/refuser")
+    public String annulerReservationTenaIzy(@RequestParam Long idReservation, Model model, HttpSession session) {
+        Utilisateur utilisateur = (Utilisateur) session.getAttribute("utilisateur");
+        if (utilisateur == null)
+            return "redirect:/";
+
+        model.addAttribute("username", utilisateur.getNom());
+        model.addAttribute("role", utilisateur.getRole());
+
+        String message = reservationService.annulerReservation(idReservation);
+
+        if (!message.startsWith("✅")) {
+            model.addAttribute("error", message);
+        } else {
+            model.addAttribute("success", message);
+        }
+
+        LocalDate datePret = reservationService.findById(idReservation).getDatepret();
+        List<Reservation> reservations = reservationService.findAllReservationsValider(datePret);
+        List<TypePret> typepret = typePretService.findAll();
+
+        model.addAttribute("reservations", reservations);
+        model.addAttribute("datepret", datePret);
+        model.addAttribute("typepret", typepret);
+
+        return "page/bibliothecaire/reservation_en_pret";
+    }
 }

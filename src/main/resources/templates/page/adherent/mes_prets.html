@@ -3,78 +3,173 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Mes prêts en cours</title>
+    <title>Mes prêts</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f1f5f9;
+        }
+
+        .sidebar {
+            width: 260px;
+            min-height: 100vh;
+            background: linear-gradient(to bottom, #3b82f6, #1d4ed8);
+            color: white;
+            position: fixed;
+        }
+
+        .sidebar .nav-link {
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            transition: background 0.2s ease;
+        }
+
+        .sidebar .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .sidebar .nav-link i {
+            margin-right: 8px;
+        }
+
+        .sidebar .logout {
+            position: absolute;
+            bottom: 30px;
+            width: 100%;
+        }
+
+        .content {
+            margin-left: 260px;
+            padding: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                position: relative;
+                width: 100%;
+            }
+
+            .content {
+                margin-left: 0;
+                padding: 20px;
+            }
+        }
+
+        .user-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+            color: white;
+        }
+
+        .card-custom {
+            background-color: #ffffff;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+        }
+
+        .active-link {
+            background-color: white !important;
+            color: #1d4ed8 !important;
+            font-weight: bold;
+        }
+    </style>
 </head>
 
 <body>
-    <h2>📚 Mes prêts en cours</h2>
 
-    <!-- 📝 Tableau des prêts -->
-    <table border="1" cellpadding="10" cellspacing="0">
-        <thead>
-            <tr>
-                <th>#</th>
-                <th>Titre du livre</th>
-                <th>Numéro exemplaire</th>
-                <th>Date de début</th>
-                <th>Date de fin prévue</th>
-                <th>Type de prêt</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr th:each="dto, stat : ${mesprets}">
-                <td th:text="${stat.count}">1</td>
-                <td th:text="${dto.pret.exemplaire.livre.titre}">Titre</td>
-                <td th:text="${dto.pret.exemplaire.numero}">EX123</td>
-                <td th:text="${#temporals.format(dto.pret.debut, 'dd/MM/yyyy')}">01/01/2025</td>
-                <td th:text="${#temporals.format(dto.pret.fin, 'dd/MM/yyyy')}">15/01/2025</td>
-                <td th:text="${dto.pret.typepret.nom}">Normal</td>
-                <td>
-                    <!-- ✅ Cas 1 : prêt prolongeable, pas encore prolongé -->
-                    <div th:if="${dto.pret.typepret.idtypepret != 2 and dto.prolongement == null}">
-                        <form th:action="@{/prolongement/demande}" method="post">
-                            <input type="hidden" name="idPret" th:value="${dto.pret.idpret}" />
-                            <label for="nouveaufin">Nouvelle date de fin :</label>
-                            <input type="date" id="nouveaufin" name="nouveaufin" required />
-                            <button type="submit">⏳ Prolonger</button>
-                        </form>
-                    </div>
+    <div class="d-flex">
+        <!-- Sidebar -->
+        <div class="sidebar p-4">
+            <div class="text-center">
+                <i class="bi bi-person-circle user-icon"></i>
+                <h5 class="mb-1">Bienvenue,</h5>
+                <h6 th:text="${username}">Nom</h6>
+                <p class="text-white-50 mb-4">Rôle : <strong th:text="${role.nom}">Adhérent</strong></p>
+            </div>
 
-                    <!-- ✅ Cas 2 : prêt déjà prolongé -->
-                    <div th:if="${dto.prolongement != null}">
-                        ✅ Prolongé jusqu'au :
-                        <span
-                            th:text="${#temporals.format(dto.prolongement.nouveaufin, 'dd/MM/yyyy')}">20/01/2025</span>
-                        <br />
-                        🟡 Statut :
-                        <span th:text="${dto.statutProlongement.statut.nom}">En attente</span>
-                    </div>
+            <nav>
+                <ul class="nav flex-column">
+                    <li>
+                        <a class="nav-link" th:href="@{/reservation/reserver}">
+                            <i class="bi bi-journal-plus"></i> Réserver un exemplaire
+                        </a>
+                    </li>
+                    <li>
+                        <a class="nav-link active-link" th:href="@{/pret/mes_prets}">
+                            <i class="bi bi-journals"></i> Voir mes prêts
+                        </a>
+                    </li>
+                </ul>
+            </nav>
 
-                    <!-- ✅ Cas 3 : prêt non prolongeable -->
-                    <div th:if="${dto.pret.typepret.idtypepret == 2}">
-                        Aucune action possible
-                    </div>
-                </td>
-            </tr>
+            <div class="logout">
+                <a class="nav-link text-danger" th:href="@{/logout}">
+                    <i class="bi bi-box-arrow-right"></i> Déconnexion
+                </a>
+            </div>
+        </div>
 
-            <tr th:if="${#lists.isEmpty(mesprets)}">
-                <td colspan="7">Aucun prêt en cours.</td>
-            </tr>
+        <!-- Contenu principal -->
+        <div class="content w-100">
+            <div class="container">
+                <div class="card-custom">
+                    <h3 class="text-center mb-4 text-primary">Mes prêts en cours</h3>
 
-        </tbody>
-    </table>
+                    <table class="table table-bordered table-striped">
+                        <thead class="table-primary">
+                            <tr>
+                                <th>#</th>
+                                <th>Livre</th>
+                                <th>Exemplaire</th>
+                                <th>Début</th>
+                                <th>Fin</th>
+                                <th>Type</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="dto, stat : ${mesprets}">
+                                <td th:text="${stat.count}"></td>
+                                <td th:text="${dto.pret.exemplaire.livre.titre}"></td>
+                                <td th:text="${dto.pret.exemplaire.numero}"></td>
+                                <td th:text="${#temporals.format(dto.pret.debut, 'dd/MM/yyyy')}"></td>
+                                <td th:text="${#temporals.format(dto.pret.fin, 'dd/MM/yyyy')}"></td>
+                                <td th:text="${dto.pret.typepret.nom}"></td>
+                                <td>
+                                    <div th:if="${dto.pret.typepret.idtypepret != 2 and dto.prolongement == null}">
+                                        <form th:action="@{/prolongement/demande}" method="post">
+                                            <input type="hidden" name="idPret" th:value="${dto.pret.idpret}" />
+                                            <input type="date" class="form-control mb-2" name="nouveaufin" required />
+                                            <button class="btn btn-success btn-sm">Prolonger</button>
+                                        </form>
+                                    </div>
+                                    <div th:if="${dto.prolongement != null}">
+                                        Prolongé jusqu'au
+                                        <span
+                                            th:text="${#temporals.format(dto.prolongement.nouveaufin, 'dd/MM/yyyy')}"></span><br>
+                                        Statut : <span th:text="${dto.statutProlongement.statut.nom}"></span>
+                                    </div>
+                                    <div th:if="${dto.pret.typepret.idtypepret == 2}">
+                                        Non prolongeable
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(mesprets)}">
+                                <td colspan="7" class="text-center text-muted">Aucun prêt en cours.</td>
+                            </tr>
+                        </tbody>
+                    </table>
 
-    <!-- ✅ Messages -->
-    <div th:if="${error}" style="color: red;">
-        <p th:text="${error}">Erreur</p>
+                    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+                    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+                </div>
+            </div>
+        </div>
     </div>
-    <div th:if="${success}" style="color: green;">
-        <p th:text="${success}">Succès</p>
-    </div>
 
-    <br />
-    <a th:href="@{/goAccueil}">🏠 Retour à l'accueil</a>
 </body>
 
 </html>

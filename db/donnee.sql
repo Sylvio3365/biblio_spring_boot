@@ -164,22 +164,6 @@ INSERT INTO etat (idetat, nom) VALUES (1, "Disponible");
 INSERT INTO etat (idetat, nom) VALUES (2, "En pret");
 
 INSERT INTO
-    etatexemplaire (
-        idetat,
-        idexemplaire,
-        dateheure
-    )
-VALUES (1, 1, NOW());
-
-INSERT INTO
-    etatexemplaire (
-        idetat,
-        idexemplaire,
-        dateheure
-    )
-VALUES (2, 2, NOW());
-
-INSERT INTO
     actif (debut, fin, idadherent)
 VALUES (
         '2025-06-01 08:00:00',
@@ -203,6 +187,8 @@ VALUES (
         1
     );
 
+DELETE FROM sanction;
+
 INSERT INTO
     sanction (debut, fin, idadherent)
 VALUES (
@@ -211,9 +197,36 @@ VALUES (
         1
     );
 
-SELECT * FROM exemplaire;
+INSERT INTO reglejf (idreglejf, comportement) VALUES (1, 1);
 
-SELECT * from etatexemplaire;
+INSERT INTO jourferie (datejf) VALUES ('2025-07-14');
+
+-- Marquer l’exemplaire 1 comme en prêt
+INSERT INTO
+    etatexemplaire (
+        idetat,
+        idexemplaire,
+        dateheure
+    )
+VALUES (2, 1, '2025-07-10 08:00:00');
+
+
+-- Créer un prêt pour adhérent 1 avec fin = 2025-07-14 (jour férié)
+INSERT INTO
+    pret (
+        debut,
+        fin,
+        idexemplaire,
+        idtypepret,
+        idadherent
+    )
+VALUES (
+        '2025-07-10',
+        '2025-07-14',
+        1,
+        1,
+        1
+    );
 
 CREATE OR REPLACE VIEW exemplaire_detail AS
 SELECT

@@ -3,72 +3,191 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Réservations validées à transformer en prêt</title>
+    <title>Réservations validées</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f1f5f9;
+        }
+
+        .sidebar {
+            width: 260px;
+            min-height: 100vh;
+            background: linear-gradient(to bottom, #3b82f6, #1d4ed8);
+            color: white;
+            position: fixed;
+        }
+
+        .sidebar .nav-link {
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            transition: background 0.2s ease;
+        }
+
+        .sidebar .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .sidebar .nav-link i {
+            margin-right: 8px;
+        }
+
+        .sidebar .logout {
+            position: absolute;
+            bottom: 30px;
+            width: 100%;
+        }
+
+        .content {
+            margin-left: 260px;
+            padding: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                position: relative;
+                width: 100%;
+            }
+
+            .content {
+                margin-left: 0;
+                padding: 20px;
+            }
+        }
+
+        .user-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+            color: white;
+        }
+
+        .card-custom {
+            background-color: #ffffff;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+        }
+
+        .active-link {
+            background-color: white !important;
+            color: #1d4ed8 !important;
+            font-weight: bold;
+        }
+    </style>
 </head>
 
 <body>
-    <h2>📅 Réservations validées à transformer en prêt</h2>
-    <!-- ✅ Affichage clair de la date choisie -->
-    <p><strong>Date sélectionnée :</strong> <span th:text="${datepret}">2025-07-14</span></p>
-    <!-- 🔎 Formulaire de sélection de date -->
-    <form th:action="@{/reservation/en_pret}" method="get">
-        <label for="datepret">Choisir la date de prêt :</label>
-        <input type="date" id="datepret" name="datepret" th:value="${datepret}" required>
-        <button type="submit">Afficher</button>
-    </form>
 
-    <br>
+    <div class="d-flex">
+        <!-- Sidebar -->
+        <div class="sidebar p-4">
+            <div class="text-center">
+                <i class="bi bi-person-circle user-icon"></i>
+                <h5 class="mb-1">Bienvenue,</h5>
+                <h6 th:text="${username}">Nom</h6>
+                <p class="text-white-50 mb-4" th:if="${role != null}">Rôle : <strong
+                        th:text="${role.nom}">Bibliothécaire</strong></p>
+            </div>
 
-    <!-- 📝 Tableau des réservations validées -->
-    <table border="1" cellpadding="10" cellspacing="0">
-        <thead>
-            <tr>
-                <th>N°</th>
-                <th>Adhérent</th>
-                <th>Exemplaire</th>
-                <th>Livre</th>
-                <th>Date prévue</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr th:each="reservation, stat : ${reservations}">
-                <td th:text="${stat.index + 1}">1</td>
-                <td th:text="${reservation.adherent.nom + ' ' + reservation.adherent.prenom}">Nom Prénom</td>
-                <td th:text="${reservation.exemplaire.numero}">EX123</td>
-                <td th:text="${reservation.exemplaire.livre.titre}">Titre du livre</td>
-                <td th:text="${reservation.datepret}">2025-07-14</td>
-                <td>
-                    <form th:action="@{/reservation/transformer}" method="post">
-                        <input type="hidden" name="idReservation" th:value="${reservation.idreservation}" />
+            <nav>
+                <ul class="nav flex-column">
+                    <li><a class="nav-link" th:href="@{/pret/form}"><i class="bi bi-book-plus"></i> Créer un prêt</a>
+                    </li>
+                    <li><a class="nav-link" th:href="@{/rendre/form}"><i class="bi bi-arrow-return-left"></i> Rendre un
+                            prêt</a></li>
+                    <li><a class="nav-link active-link" th:href="@{/reservation/en_pret}"><i
+                                class="bi bi-arrow-repeat"></i> Transformer réservation</a></li>
+                    <li><a class="nav-link" th:href="@{/prolongement/en_attente}"><i class="bi bi-clock-history"></i>
+                            Voir prolongements</a></li>
+                </ul>
+            </nav>
 
-                        <select name="idTypePret" required>
-                            <option value="">-- Type de prêt --</option>
-                            <option th:each="tp : ${typepret}" th:value="${tp.idtypepret}" th:text="${tp.nom}">
-                            </option>
-                        </select>
+            <div class="logout">
+                <a class="nav-link text-danger" th:href="@{/logout}"><i class="bi bi-box-arrow-right"></i>
+                    Déconnexion</a>
+            </div>
+        </div>
 
-                        <button type="submit">📘 Transformer en prêt</button>
+        <!-- Contenu principal -->
+        <div class="content w-100">
+            <div class="container">
+                <div class="card-custom">
+                    <h3 class="text-center mb-4 text-warning">Réservations validées à transformer en prêt</h3>
+
+                    <p class="mb-3"><strong>Date sélectionnée :</strong> <span th:text="${datepret}">2025-07-14</span>
+                    </p>
+
+                    <form class="row g-3 mb-4" th:action="@{/reservation/en_pret}" method="get">
+                        <div class="col-auto">
+                            <label for="datepret" class="form-label">Changer de date :</label>
+                        </div>
+                        <div class="col-auto">
+                            <input type="date" class="form-control" id="datepret" name="datepret" th:value="${datepret}"
+                                required />
+                        </div>
+                        <div class="col-auto">
+                            <button type="submit" class="btn btn-primary">Afficher</button>
+                        </div>
                     </form>
 
-                </td>
-            </tr>
+                    <table class="table table-bordered table-striped">
+                        <thead class="table-warning">
+                            <tr>
+                                <th>#</th>
+                                <th>Adhérent</th>
+                                <th>Exemplaire</th>
+                                <th>Livre</th>
+                                <th>Date prévue</th>
+                                <th>Transformer</th>
+                                <th>Annuler</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="reservation, stat : ${reservations}">
+                                <td th:text="${stat.index + 1}"></td>
+                                <td th:text="${reservation.adherent.nom + ' ' + reservation.adherent.prenom}"></td>
+                                <td th:text="${reservation.exemplaire.numero}"></td>
+                                <td th:text="${reservation.exemplaire.livre.titre}"></td>
+                                <td th:text="${reservation.datepret}"></td>
+                                <td>
+                                    <form th:action="@{/reservation/transformer}" method="post">
+                                        <input type="hidden" name="idReservation"
+                                            th:value="${reservation.idreservation}" />
+                                        <select class="form-select form-select-sm mb-2" name="idTypePret" required>
+                                            <option value="">Type de prêt</option>
+                                            <option th:each="tp : ${typepret}" th:value="${tp.idtypepret}"
+                                                th:text="${tp.nom}"></option>
+                                        </select>
+                                        <button type="submit" class="btn btn-primary btn-sm">Transformer</button>
+                                    </form>
+                                </td>
+                                <td>
+                                    <form th:action="@{/reservation/refuser}" method="post">
+                                        <input type="hidden" name="idReservation"
+                                            th:value="${reservation.idreservation}" />
+                                        <button type="submit" class="btn btn-danger btn-sm">Annuler</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            <tr th:if="${reservations.size() == 0}">
+                                <td colspan="7" class="text-center text-muted">Aucune réservation validée.</td>
+                            </tr>
+                        </tbody>
+                    </table>
 
-            <tr th:if="${reservations.size() == 0}">
-                <td colspan="6">Aucune réservation validée pour cette date.</td>
-            </tr>
-        </tbody>
-    </table>
+                    <div th:if="${error}" class="alert alert-danger mt-3" th:text="${error}"></div>
+                    <div th:if="${success}" class="alert alert-success mt-3" th:text="${success}"></div>
 
-    <br>
-    <div th:if="${error}" style="color: red;">
-        <p th:text="${error}"></p>
+                    <div class="text-center mt-4">
+                        <a th:href="@{/goAccueil}" class="btn btn-outline-primary">Retour à l'accueil</a>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div th:if="${success}" style="color: green;">
-        <p th:text="${success}"></p>
-    </div>
-    <a th:href="@{/goAccueil}">Retour à l'accueil</a>
 </body>
 
 </html>

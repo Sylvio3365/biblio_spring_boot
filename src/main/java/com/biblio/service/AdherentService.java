@@ -1,5 +1,7 @@
 package com.biblio.service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -61,6 +63,35 @@ public class AdherentService {
         }
 
         return "✅ Adhérent valide – Prêt autorisé";
+    }
+
+    public String checkAdherentWithDate(Long idadherent, LocalDate date) throws Exception {
+        Adherent a = adherentRepository.findById(idadherent).orElse(null);
+
+        if (a == null) {
+            throw new Exception("❌ Adhérent non trouvé.");
+        }
+
+        // Convertir LocalDate en LocalDateTime à minuit (00:00)
+        LocalDateTime dateTime = date.atStartOfDay().plusHours(2);
+
+        boolean estSanctionne = adherentRepository.isSanctionedAtDateTime(idadherent, dateTime);
+        boolean estActif = adherentRepository.isActifAtDateTime(idadherent, dateTime);
+        boolean estAbonne = adherentRepository.isAbonneAtDateTime(idadherent, dateTime);
+
+        if (estSanctionne) {
+            throw new Exception("⛔ Adhérent sanctionné à cette date – Prêt refusé.");
+        }
+
+        // if (!estActif) {
+        //     throw new Exception("⛔ Adhérent inactif à cette date – Prêt refusé.");
+        // }
+
+        if (!estAbonne) {
+            throw new Exception("⛔ Adhérent non abonné à cette date – Prêt refusé.");
+        }
+
+        return "✅ Adhérent valide à cette date – Prêt autorisé";
     }
 
     public boolean isPretAutorise(Long idadherent) throws Exception {

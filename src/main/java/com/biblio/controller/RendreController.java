@@ -1,9 +1,11 @@
 package com.biblio.controller;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -68,7 +70,11 @@ public class RendreController {
     }
 
     @PostMapping("/save")
-    public String rendre(@RequestParam("idPret") Long idPret, Model model, HttpSession session) {
+    public String rendre(
+            @RequestParam("idPret") Long idPret,
+            @RequestParam("dateRetour") LocalDate dateRetour,
+            Model model,
+            HttpSession session) {
         Utilisateur utilisateur = (Utilisateur) session.getAttribute("utilisateur");
         if (utilisateur == null) {
             return "redirect:/";
@@ -77,8 +83,7 @@ public class RendreController {
         model.addAttribute("role", utilisateur.getRole());
 
         Pret p = pretService.findById(idPret);
-        String message = rendreService.rendrePret(p);
-
+        String message = rendreService.rendrePretAvecDate(p, dateRetour);
         List<Pret> prets = pretService.getPretNonRendu();
         List<PretAvecProlongementDTO> details = new ArrayList<>();
 

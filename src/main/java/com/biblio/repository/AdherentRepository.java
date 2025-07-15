@@ -32,6 +32,33 @@ public interface AdherentRepository extends JpaRepository<Adherent, Long> {
     boolean isAbonne(@Param("idAdherent") Long idAdherent);
 
     @Query("""
+                SELECT CASE WHEN COUNT(s) > 0 THEN true ELSE false END
+                FROM Sanction s
+                WHERE s.adherent.id = :idAdherent
+                AND :datetime BETWEEN s.debut AND s.fin
+            """)
+    boolean isSanctionedAtDateTime(@Param("idAdherent") Long idAdherent,
+            @Param("datetime") java.time.LocalDateTime datetime);
+
+    @Query("""
+                SELECT CASE WHEN COUNT(a) > 0 THEN true ELSE false END
+                FROM Actif a
+                WHERE a.adherent.id = :idAdherent
+                AND :datetime BETWEEN a.debut AND a.fin
+            """)
+    boolean isActifAtDateTime(@Param("idAdherent") Long idAdherent,
+            @Param("datetime") java.time.LocalDateTime datetime);
+
+    @Query("""
+                SELECT CASE WHEN COUNT(ab) > 0 THEN true ELSE false END
+                FROM Abonnement ab
+                WHERE ab.adherent.id = :idAdherent
+                AND :datetime BETWEEN ab.debut AND ab.fin
+            """)
+    boolean isAbonneAtDateTime(@Param("idAdherent") Long idAdherent,
+            @Param("datetime") java.time.LocalDateTime datetime);
+
+    @Query("""
                 SELECT COUNT(p)
                 FROM Pret p
                 WHERE p.adherent.idadherent = :idAdherent

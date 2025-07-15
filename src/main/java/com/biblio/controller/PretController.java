@@ -1,8 +1,10 @@
 package com.biblio.controller;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -84,6 +86,7 @@ public class PretController {
             @RequestParam("idAdherent") Long idAdherent,
             @RequestParam("idTypePret") Long idTypePret,
             @RequestParam("idExemplaire") Long idExemplaire,
+            @RequestParam("datePret") LocalDate datePret,
             Model model,
             HttpSession session) {
 
@@ -99,7 +102,7 @@ public class PretController {
         model.addAttribute("exemplaires", exemplaireService.findAll());
 
         try {
-            String resultat = pretService.traiterPret(idAdherent, idTypePret, idExemplaire);
+            String resultat = pretService.traiterPretAvecDate(idAdherent, idTypePret, idExemplaire, datePret);
             model.addAttribute("success", resultat);
         } catch (Exception e) {
             model.addAttribute("error", e.getMessage());

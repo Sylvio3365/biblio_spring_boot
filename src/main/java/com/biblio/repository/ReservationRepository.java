@@ -32,8 +32,8 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
                     WHERE sr.reservation.idreservation = r.idreservation
                     ORDER BY sr.datemodif DESC
                     LIMIT 1
-                ) = 2
+                ) = 1
             """)
-    List<Reservation> findAllReservationsValider(LocalDate date);
+    List<Reservation> findAllReservationsEnAttenteAvalider(LocalDate date);
 
 }

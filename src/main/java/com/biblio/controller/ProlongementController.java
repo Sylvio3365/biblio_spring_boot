@@ -11,11 +11,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.biblio.model.Pret;
 import com.biblio.model.Prolongement;
-import com.biblio.model.Statut;
 import com.biblio.model.StatutProlongement;
 import com.biblio.model.Utilisateur;
 import com.biblio.model.utils.PretAvecProlongementDTO;
@@ -31,14 +29,23 @@ public class ProlongementController {
 
     @Autowired
     private PretService pretService;
+
     @Autowired
     private ProlongementService prolongementService;
+
     @Autowired
     private StatutProlongementService statutProlongementService;
 
     @PostMapping("/valider")
-    public String validerProlongement(@RequestParam("idProlongement") Long idProlongement,
-            Model m) {
+    public String validerProlongement(@RequestParam("idProlongement") Long idProlongement, Model model,
+            HttpSession session) {
+        Utilisateur utilisateur = (Utilisateur) session.getAttribute("utilisateur");
+        if (utilisateur == null) {
+            return "redirect:/";
+        }
+        model.addAttribute("username", utilisateur.getNom());
+        model.addAttribute("role", utilisateur.getRole());
+
         try {
             Prolongement prolongement = prolongementService.findById(idProlongement);
 
@@ -52,21 +59,27 @@ public class ProlongementController {
 
             statutProlongementService.saveAvecStatut(statut, 2); // 2 = Validé
 
-            m.addAttribute("success", "✅ Prolongement validé avec succès.");
+            model.addAttribute("success", "✅ Prolongement validé avec succès.");
         } catch (Exception e) {
-            m.addAttribute("error", "❌ Erreur : " + e.getMessage());
+            model.addAttribute("error", "❌ Erreur : " + e.getMessage());
         }
 
-        // ✅ NÉCESSAIRE : toujours renvoyer la liste à la vue
         List<Prolongement> all = prolongementService.findProlongementEnAttente();
-        m.addAttribute("prolongements", all);
+        model.addAttribute("prolongements", all);
 
         return "page/bibliothecaire/prolengement_en_attente";
     }
 
     @PostMapping("/refuser")
-    public String refuserProlongement(@RequestParam("idProlongement") Long idProlongement,
-            Model m) {
+    public String refuserProlongement(@RequestParam("idProlongement") Long idProlongement, Model model,
+            HttpSession session) {
+        Utilisateur utilisateur = (Utilisateur) session.getAttribute("utilisateur");
+        if (utilisateur == null) {
+            return "redirect:/";
+        }
+        model.addAttribute("username", utilisateur.getNom());
+        model.addAttribute("role", utilisateur.getRole());
+
         try {
             Prolongement prolongement = prolongementService.findById(idProlongement);
 
@@ -80,14 +93,13 @@ public class ProlongementController {
 
             statutProlongementService.saveAvecStatut(statut, 4); // 4 = Refusé
 
-            m.addAttribute("success", "❌ Prolongement refusé avec succès.");
+            model.addAttribute("success", "❌ Prolongement refusé avec succès.");
         } catch (Exception e) {
-            m.addAttribute("error", "❌ Erreur : " + e.getMessage());
+            model.addAttribute("error", "❌ Erreur : " + e.getMessage());
         }
 
-        // ✅ Recharge la liste
         List<Prolongement> all = prolongementService.findProlongementEnAttente();
-        m.addAttribute("prolongements", all);
+        model.addAttribute("prolongements", all);
 
         return "page/bibliothecaire/prolengement_en_attente";
     }
@@ -95,18 +107,20 @@ public class ProlongementController {
     @PostMapping("/demande")
     public String demander(@RequestParam("idPret") Long idPret, @RequestParam("nouveaufin") LocalDate nouveaufin,
             Model model, HttpSession session) {
-
         Utilisateur utilisateur = (Utilisateur) session.getAttribute("utilisateur");
-
         if (utilisateur == null) {
             return "redirect:/";
         }
+        model.addAttribute("username", utilisateur.getNom());
+        model.addAttribute("role", utilisateur.getRole());
+
         Pret p = pretService.findById(idPret);
         try {
             prolongementService.demandeProlongationPret(p, nouveaufin.atTime(23, 59));
         } catch (Exception e) {
             model.addAttribute("error", e.getMessage());
         }
+
         try {
             List<PretAvecProlongementDTO> mesprets = pretService
                     .getPretNonRenduAvecProlongement(utilisateur.getIdutilisateur());
@@ -114,13 +128,22 @@ public class ProlongementController {
         } catch (Exception e) {
             model.addAttribute("error", e.getMessage());
         }
+
         return "page/adherent/mes_prets";
     }
 
     @GetMapping("/en_attente")
-    public String enattente(Model model) {
+    public String enattente(Model model, HttpSession session) {
+        Utilisateur utilisateur = (Utilisateur) session.getAttribute("utilisateur");
+        if (utilisateur == null) {
+            return "redirect:/";
+        }
+        model.addAttribute("username", utilisateur.getNom());
+        model.addAttribute("role", utilisateur.getRole());
+
         List<Prolongement> all = prolongementService.findProlongementEnAttente();
         model.addAttribute("prolongements", all);
+
         return "page/bibliothecaire/prolengement_en_attente";
     }
 }

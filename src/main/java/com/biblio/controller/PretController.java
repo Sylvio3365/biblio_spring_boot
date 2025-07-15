@@ -42,10 +42,11 @@ public class PretController {
     @GetMapping("/mes_prets")
     public String mesPrets(Model model, HttpSession session) {
         Utilisateur utilisateur = (Utilisateur) session.getAttribute("utilisateur");
-
         if (utilisateur == null) {
             return "redirect:/";
         }
+        model.addAttribute("username", utilisateur.getNom());
+        model.addAttribute("role", utilisateur.getRole());
 
         try {
             List<PretAvecProlongementDTO> mesprets = pretService
@@ -59,13 +60,22 @@ public class PretController {
     }
 
     @GetMapping("/form")
-    public String newPret(Model model) {
+    public String newPret(Model model, HttpSession session) {
+        Utilisateur utilisateur = (Utilisateur) session.getAttribute("utilisateur");
+        if (utilisateur == null) {
+            return "redirect:/";
+        }
+        model.addAttribute("username", utilisateur.getNom());
+        model.addAttribute("role", utilisateur.getRole());
+
         List<Adherent> adherents = adherentService.findAll();
         List<TypePret> typeprets = typePretService.findAll();
         List<Exemplaire> exemplaires = exemplaireService.findAll();
+
         model.addAttribute("adherents", adherents);
         model.addAttribute("typeprets", typeprets);
         model.addAttribute("exemplaires", exemplaires);
+
         return "page/bibliothecaire/pret";
     }
 
@@ -74,7 +84,15 @@ public class PretController {
             @RequestParam("idAdherent") Long idAdherent,
             @RequestParam("idTypePret") Long idTypePret,
             @RequestParam("idExemplaire") Long idExemplaire,
-            Model model) {
+            Model model,
+            HttpSession session) {
+
+        Utilisateur utilisateur = (Utilisateur) session.getAttribute("utilisateur");
+        if (utilisateur == null) {
+            return "redirect:/";
+        }
+        model.addAttribute("username", utilisateur.getNom());
+        model.addAttribute("role", utilisateur.getRole());
 
         model.addAttribute("adherents", adherentService.findAll());
         model.addAttribute("typeprets", typePretService.findAll());
@@ -89,5 +107,4 @@ public class PretController {
 
         return "page/bibliothecaire/pret";
     }
-
 }

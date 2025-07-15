@@ -3,51 +3,173 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Liste des prêts non rendus</title>
+    <title>Prêts non rendus</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f1f5f9;
+        }
+
+        .sidebar {
+            width: 260px;
+            min-height: 100vh;
+            background: linear-gradient(to bottom, #3b82f6, #1d4ed8);
+            color: white;
+            position: fixed;
+        }
+
+        .sidebar .nav-link {
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            transition: background 0.2s ease;
+        }
+
+        .sidebar .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .sidebar .nav-link i {
+            margin-right: 8px;
+        }
+
+        .sidebar .logout {
+            position: absolute;
+            bottom: 30px;
+            width: 100%;
+        }
+
+        .content {
+            margin-left: 260px;
+            padding: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                position: relative;
+                width: 100%;
+            }
+
+            .content {
+                margin-left: 0;
+                padding: 20px;
+            }
+        }
+
+        .user-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+            color: white;
+        }
+
+        .card-custom {
+            background-color: #ffffff;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+        }
+
+        .active-link {
+            background-color: white !important;
+            color: #1d4ed8 !important;
+            font-weight: bold;
+        }
+    </style>
 </head>
 
 <body>
 
-    <h2>📚 Liste des prêts en cours (non rendus)</h2>
+    <div class="d-flex">
+        <!-- Sidebar -->
+        <div class="sidebar p-4">
+            <div class="text-center">
+                <i class="bi bi-person-circle user-icon"></i>
+                <h5 class="mb-1">Bienvenue,</h5>
+                <h6 th:text="${username}">Nom</h6>
+                <p class="text-white-50 mb-4" th:if="${role != null}">Rôle : <strong
+                        th:text="${role.nom}">Bibliothécaire</strong></p>
+            </div>
 
-    <table border="1" cellpadding="10" cellspacing="0">
-        <thead>
-            <tr>
-                <th>N°</th>
-                <th>Adhérent</th>
-                <th>Livre</th>
-                <th>Exemplaire</th>
-                <th>Date de début</th>
-                <th>Date de fin prévue</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr th:each="pret, iterStat : ${prets}">
-                <td th:text="${iterStat.index + 1}">1</td>
-                <td th:text="${pret.adherent.nom + ' ' + pret.adherent.prenom}">Nom Prénom</td>
-                <td th:text="${pret.exemplaire.livre.titre}">Titre Livre</td>
-                <td th:text="${pret.exemplaire.numero}">Numéro Exemplaire</td>
-                <td th:text="${pret.debut.toLocalDate()}">2025-07-13</td>
-                <td th:text="${pret.fin.toLocalDate()}">2025-07-20</td>
-                <td>
-                    <form th:action="@{/rendre/save}" method="post">
-                        <input type="hidden" name="idPret" th:value="${pret.idpret}" />
-                        <button type="submit">Rendre</button>
-                    </form>
-                </td>
-            </tr>
-            <tr th:if="${prets.size() == 0}">
-                <td colspan="7">Aucun prêt en cours.</td>
-            </tr>
-        </tbody>
-    </table>
+            <nav>
+                <ul class="nav flex-column">
+                    <li><a class="nav-link" th:href="@{/pret/form}"><i class="bi bi-book-plus"></i> Créer un prêt</a>
+                    </li>
+                    <li><a class="nav-link active-link" th:href="@{/rendre/form}"><i
+                                class="bi bi-arrow-return-left"></i> Rendre un prêt</a></li>
+                    <li><a class="nav-link" th:href="@{/reservation/en_pret}"><i class="bi bi-arrow-repeat"></i>
+                            Transformer réservation</a></li>
+                    <li><a class="nav-link" th:href="@{/prolongement/en_attente}"><i class="bi bi-clock-history"></i>
+                            Voir prolongements</a></li>
+                </ul>
+            </nav>
 
-    <!-- ✅ Message de retour (succès ou erreur) -->
-    <div style="margin-top:20px;">
-        <p th:if="${message}" th:text="${message}" style="color: green;"></p>
+            <div class="logout">
+                <a class="nav-link text-danger" th:href="@{/logout}"><i class="bi bi-box-arrow-right"></i>
+                    Déconnexion</a>
+            </div>
+        </div>
+
+        <!-- Contenu principal -->
+        <div class="content w-100">
+            <div class="container">
+                <div class="card-custom">
+                    <h3 class="text-center mb-4 text-primary">Prêts non rendus</h3>
+
+                    <table class="table table-bordered table-striped">
+                        <thead class="table-info">
+                            <tr>
+                                <th>#</th>
+                                <th>Adhérent</th>
+                                <th>Livre</th>
+                                <th>Exemplaire</th>
+                                <th>Début</th>
+                                <th>Fin prévue</th>
+                                <th>Prolongement</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="dto, iterStat : ${details}">
+                                <td th:text="${iterStat.index + 1}"></td>
+                                <td th:text="${dto.pret.adherent.nom + ' ' + dto.pret.adherent.prenom}"></td>
+                                <td th:text="${dto.pret.exemplaire.livre.titre}"></td>
+                                <td th:text="${dto.pret.exemplaire.numero}"></td>
+                                <td th:text="${#temporals.format(dto.pret.debut, 'dd/MM/yyyy')}"></td>
+                                <td th:text="${#temporals.format(dto.pret.fin, 'dd/MM/yyyy')}"></td>
+                                <td>
+                                    <span th:if="${dto.prolongement != null}">
+                                        jusqu'au <span
+                                            th:text="${#temporals.format(dto.prolongement.nouveaufin, 'dd/MM/yyyy')}"></span>
+                                        (<span th:text="${dto.statutProlongement.statut.nom}"></span>)
+                                    </span>
+                                    <span th:unless="${dto.prolongement != null}">
+                                        Aucun
+                                    </span>
+                                </td>
+                                <td>
+                                    <form th:action="@{/rendre/save}" method="post">
+                                        <input type="hidden" name="idPret" th:value="${dto.pret.idpret}" />
+                                        <button type="submit" class="btn btn-primary btn-sm">Rendre</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            <tr th:if="${details == null or details.size() == 0}">
+                                <td colspan="8" class="text-center text-muted">Aucun prêt en cours.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+
+                    <div class="text-center mt-4">
+                        <a th:href="@{/goAccueil}" class="btn btn-outline-primary">Retour</a>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <a th:href="@{/goAccueil}">Retour</a>
+
 </body>
 
 </html>

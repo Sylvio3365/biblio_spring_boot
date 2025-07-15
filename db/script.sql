@@ -129,7 +129,6 @@ CREATE TABLE prolongement (
     FOREIGN KEY (idpret) REFERENCES pret (idpret)
 );
 
-
 CREATE TABLE reservation (
     idreservation INT AUTO_INCREMENT,
     datereservation DATETIME,
@@ -202,4 +201,16 @@ CREATE TABLE abonnement (
     idadherent INT NOT NULL,
     PRIMARY KEY (idabonnement),
     FOREIGN KEY (idadherent) REFERENCES adherent (idadherent)
+);
+
+CREATE TABLE jourferie (
+    idjourferie INT AUTO_INCREMENT,
+    datejf DATE,
+    PRIMARY KEY (idjourferie)
+);
+
+CREATE TABLE reglejf (
+    idreglejf INT AUTO_INCREMENT,
+    comportement INT,
+    PRIMARY KEY (idreglejf)
 );

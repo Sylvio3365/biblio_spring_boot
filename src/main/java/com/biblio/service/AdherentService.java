@@ -41,8 +41,12 @@ public class AdherentService {
         return adherentRepository.isSanctioned(idadherent);
     }
 
+    // public boolean isActif(Long idadherent) {
+    // return adherentRepository.isActif(idadherent);
+    // }
+
     public boolean isActif(Long idadherent) {
-        return adherentRepository.isActif(idadherent);
+        return true;
     }
 
     public List<Adherent> findAll() {
@@ -69,15 +73,10 @@ public class AdherentService {
         }
 
         boolean estSanctionne = adherentRepository.isSanctioned(idadherent);
-        boolean estActif = adherentRepository.isActif(idadherent);
         boolean estAbonne = adherentRepository.isAbonne(idadherent);
 
         if (estSanctionne) {
             throw new Exception("⛔ Adhérent sanctionné – Prêt refusé.");
-        }
-
-        if (!estActif) {
-            throw new Exception("⛔ Adhérent inactif – Prêt refusé.");
         }
 
         if (!estAbonne) {
@@ -98,17 +97,11 @@ public class AdherentService {
         LocalDateTime dateTime = date.atStartOfDay().plusHours(2);
 
         boolean estSanctionne = adherentRepository.isSanctionedAtDateTime(idadherent, dateTime);
-        boolean estActif = adherentRepository.isActifAtDateTime(idadherent, dateTime);
         boolean estAbonne = adherentRepository.isAbonneAtDateTime(idadherent, dateTime);
 
         if (estSanctionne) {
             throw new Exception("⛔ Adhérent sanctionné à cette date – Prêt refusé.");
         }
-
-        // if (!estActif) {
-        // throw new Exception("⛔ Adhérent inactif à cette date – Prêt refusé.");
-        // }
-
         if (!estAbonne) {
             throw new Exception("⛔ Adhérent non abonné à cette date – Prêt refusé.");
         }

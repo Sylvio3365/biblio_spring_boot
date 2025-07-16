@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.biblio.model.Adherent;
+import com.biblio.model.utils.AdherentDetailDTO;
 import com.biblio.repository.AdherentRepository;
 
 @Service
@@ -14,6 +15,27 @@ public class AdherentService {
 
     @Autowired
     private AdherentRepository adherentRepository;
+
+    public AdherentDetailDTO getDetailAdherent(int id) throws Exception {
+        Long idAdherent = Long.valueOf(id);
+
+        // Recherche de l'adhérent
+        Adherent adherent = this.findById(idAdherent);
+        if (adherent == null) {
+            throw new Exception("Adhérent introuvable");
+        }
+
+        // Création du DTO de réponse
+        AdherentDetailDTO dto = new AdherentDetailDTO();
+        dto.setAdherent(adherent);
+
+        // Informations complémentaires
+        dto.setEstSanctionner(this.isSanctioned(idAdherent));
+        dto.setEstAbonner(adherentRepository.isAbonne(idAdherent));
+        dto.setQuota_pret(this.getNbPretNonRenduAdomicile(idAdherent));
+
+        return dto;
+    }
 
     public boolean isSanctioned(Long idadherent) {
         return adherentRepository.isSanctioned(idadherent);
@@ -84,7 +106,7 @@ public class AdherentService {
         }
 
         // if (!estActif) {
-        //     throw new Exception("⛔ Adhérent inactif à cette date – Prêt refusé.");
+        // throw new Exception("⛔ Adhérent inactif à cette date – Prêt refusé.");
         // }
 
         if (!estAbonne) {
@@ -100,7 +122,11 @@ public class AdherentService {
     }
 
     public int getNbPretNonRendu(Long idadherent) {
-        return adherentRepository.getNbPretNonRendu(idadherent);
+        return adherentRepository.getNbPretNonRenduAdomicile(idadherent);
+    }
+
+    public int getNbPretNonRenduAdomicile(Long idadherent) {
+        return adherentRepository.getNbPretNonRenduAdomicile(idadherent);
     }
 
     public int getNbProlongementEnAttente(Long idadherent) {

@@ -67,6 +67,17 @@ public interface AdherentRepository extends JpaRepository<Adherent, Long> {
     int getNbPretNonRendu(@Param("idAdherent") Long idAdherent);
 
     @Query("""
+                SELECT COUNT(p)
+                FROM Pret p
+                WHERE p.adherent.idadherent = :idAdherent
+                  AND p.idpret NOT IN (
+                      SELECT r.pret.idpret FROM Rendre r
+                  )
+                  AND p.typepret.idtypepret = 1
+            """)
+    int getNbPretNonRenduAdomicile(@Param("idAdherent") Long idAdherent);
+
+    @Query("""
                 SELECT a
                 FROM Adherent a
                 WHERE a.utilisateur.idutilisateur = :idUtilisateur

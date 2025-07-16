@@ -43,7 +43,7 @@ public class RendreService {
     }
 
     public String rendrePretAvecDate(Pret pret, LocalDate dateretour) {
-        LocalDateTime now = dateretour.atTime(9, 00, 00); // on considère que le rendu est fait en fin de journée
+        LocalDateTime now = dateretour.atTime(02, 00, 00); // on considère que le rendu est fait en fin de journée
         LocalDateTime dateFin = pret.getFin();
         LocalDate dateRetour = now.toLocalDate();
 

@@ -10,6 +10,7 @@ import com.biblio.model.RegleLivre;
 import com.biblio.model.StatutProlongement;
 import com.biblio.model.TypePret;
 import com.biblio.model.utils.PretAvecProlongementDTO;
+import com.biblio.repository.AdherentRepository;
 import com.biblio.repository.PretRepository;
 
 import java.time.LocalDate;
@@ -37,6 +38,8 @@ public class PretService {
     private ProlongementService prolongementService;
     @Autowired
     private StatutProlongementService statutProlongementService;
+    @Autowired
+    private AdherentRepository adherentRepository;
 
     public Pret save(Pret pret) {
         return pretRepository.save(pret);
@@ -97,10 +100,16 @@ public class PretService {
         }
 
         // 2️⃣ Vérifier le quota de prêt
-        int quotaPret = adherent.getProfil().getQuota().getPret();
-        int nbPretNonRendu = adherentService.getNbPretNonRendu(idAdherent);
-        if (nbPretNonRendu >= quotaPret) {
-            throw new Exception("⛔ Quota de prêt atteint (" + quotaPret + " en cours non rendus).");
+        if (idTypePret == 1L) {
+            // 2️⃣ Vérifier le quota de prêt
+            int quotaPret = adherent.getProfil().getQuota().getPret();
+
+            // int nbPretNonRendu = adherentService.getNbPretNonRendu(idAdherent);
+
+            int nbPretNonRendu = adherentRepository.getNbPretNonRenduAdomicile(idAdherent);
+            if (nbPretNonRendu >= quotaPret) {
+                throw new Exception("⛔ Quota de prêt atteint (" + quotaPret + " en cours non rendus).");
+            }
         }
 
         // 3️⃣ Vérifier les conditions liées à l’adhérent
@@ -162,11 +171,16 @@ public class PretService {
             throw new Exception("⛔ Données invalides – vérifiez les sélections.");
         }
 
-        // 2️⃣ Vérifier le quota de prêt
-        int quotaPret = adherent.getProfil().getQuota().getPret();
-        int nbPretNonRendu = adherentService.getNbPretNonRendu(idAdherent);
-        if (nbPretNonRendu >= quotaPret) {
-            throw new Exception("⛔ Quota de prêt atteint (" + quotaPret + " en cours non rendus).");
+        if (idTypePret == 1L) {
+            // 2️⃣ Vérifier le quota de prêt
+            int quotaPret = adherent.getProfil().getQuota().getPret();
+
+            // int nbPretNonRendu = adherentService.getNbPretNonRendu(idAdherent);
+
+            int nbPretNonRendu = adherentRepository.getNbPretNonRenduAdomicile(idAdherent);
+            if (nbPretNonRendu >= quotaPret) {
+                throw new Exception("⛔ Quota de prêt atteint (" + quotaPret + " en cours non rendus).");
+            }
         }
 
         // 3️⃣ Vérifier les conditions liées à l’adhérent

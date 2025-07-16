@@ -155,6 +155,13 @@
                                 th:text="'Livre : ' + ${ex.livre.titre} + ' | Exemplaire n°' + ${ex.numero}"></option>
                         </select>
                     </div>
+                    <!-- Ajout ici -->
+                    <div class="mb-3">
+                        <label for="datePret" class="form-label">Date du prêt :</label>
+                        <input type="date" class="form-control" name="datePret" id="datePret" required
+                            th:value="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}">
+                    </div>
+
                     <button type="submit" class="btn btn-primary w-100">Valider le prêt</button>
                 </form>
 

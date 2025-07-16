@@ -10,8 +10,10 @@ import com.biblio.model.RegleLivre;
 import com.biblio.model.StatutProlongement;
 import com.biblio.model.TypePret;
 import com.biblio.model.utils.PretAvecProlongementDTO;
+import com.biblio.repository.AdherentRepository;
 import com.biblio.repository.PretRepository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +38,8 @@ public class PretService {
     private ProlongementService prolongementService;
     @Autowired
     private StatutProlongementService statutProlongementService;
+    @Autowired
+    private AdherentRepository adherentRepository;
 
     public Pret save(Pret pret) {
         return pretRepository.save(pret);
@@ -96,10 +100,16 @@ public class PretService {
         }
 
         // 2️⃣ Vérifier le quota de prêt
-        int quotaPret = adherent.getProfil().getQuota().getPret();
-        int nbPretNonRendu = adherentService.getNbPretNonRendu(idAdherent);
-        if (nbPretNonRendu >= quotaPret) {
-            throw new Exception("⛔ Quota de prêt atteint (" + quotaPret + " en cours non rendus).");
+        if (idTypePret == 1L) {
+            // 2️⃣ Vérifier le quota de prêt
+            int quotaPret = adherent.getProfil().getQuota().getPret();
+
+            // int nbPretNonRendu = adherentService.getNbPretNonRendu(idAdherent);
+
+            int nbPretNonRendu = adherentRepository.getNbPretNonRenduAdomicile(idAdherent);
+            if (nbPretNonRendu >= quotaPret) {
+                throw new Exception("⛔ Quota de prêt atteint (" + quotaPret + " en cours non rendus).");
+            }
         }
 
         // 3️⃣ Vérifier les conditions liées à l’adhérent
@@ -128,6 +138,82 @@ public class PretService {
         // 7️⃣ Créer le prêt
         LocalDateTime debut = LocalDateTime.now().plusHours(3);
         LocalDateTime fin = debut.plusDays(adherent.getProfil().getRegle().getNbjourpret());
+        if (idTypePret == 2L) {
+            fin = debut.withHour(23).withMinute(59).withSecond(59);
+        }
+        Pret pret = new Pret();
+        pret.setAdherent(adherent);
+        pret.setExemplaire(exemplaire);
+        pret.setTypepret(typepret);
+        pret.setDebut(debut);
+        pret.setFin(fin);
+        pretRepository.save(pret);
+
+        // 8️⃣ Mettre à jour l’état de l’exemplaire (En prêt)
+        EtatExemplaire ee = new EtatExemplaire();
+        ee.setDateheure(debut);
+        ee.setEtat(new Etat(2L, "En pret"));
+        ee.setExemplaire(exemplaire);
+        etatExemplaireService.save(ee);
+
+        return "✅ Prêt enregistré avec succès.";
+    }
+
+    public String traiterPretAvecDate(Long idAdherent, Long idTypePret, Long idExemplaire, LocalDate datePret)
+            throws Exception {
+
+        // 1️⃣ Vérification des entités de base
+        Adherent adherent = adherentService.findById(idAdherent);
+        TypePret typepret = typePretService.findById(idTypePret);
+        Exemplaire exemplaire = exemplaireService.findById(idExemplaire);
+
+        if (adherent == null || typepret == null || exemplaire == null) {
+            throw new Exception("⛔ Données invalides – vérifiez les sélections.");
+        }
+
+        if (idTypePret == 1L) {
+            // 2️⃣ Vérifier le quota de prêt
+            int quotaPret = adherent.getProfil().getQuota().getPret();
+
+            // int nbPretNonRendu = adherentService.getNbPretNonRendu(idAdherent);
+
+            int nbPretNonRendu = adherentRepository.getNbPretNonRenduAdomicile(idAdherent);
+            if (nbPretNonRendu >= quotaPret) {
+                throw new Exception("⛔ Quota de prêt atteint (" + quotaPret + " en cours non rendus).");
+            }
+        }
+
+        // 3️⃣ Vérifier les conditions liées à l’adhérent
+        adherentService.checkAdherentWithDate(idAdherent, datePret); // Cette méthode jette déjà les exceptions
+                                                                     // nécessaires
+
+        // 4️⃣ Vérifier que l’exemplaire est disponible
+        if (!exemplaireService.estDisponible(idExemplaire)) {
+            throw new Exception("⛔ L'exemplaire sélectionné est déjà en prêt.");
+        }
+
+        // 5️⃣ Vérifier la correspondance type de prêt / exemplaire
+        if (!exemplaire.getTypePret().getIdtypepret().equals(typepret.getIdtypepret())) {
+            throw new Exception("⛔ Type de prêt non conforme à l'exemplaire sélectionné.");
+        }
+
+        // 6️⃣ Vérifier l'âge de l’adhérent
+        RegleLivre regleLivre = exemplaire.getLivre().getRegleLivre();
+        if (regleLivre != null) {
+            int ageAdherent = adherent.getAge();
+            int ageMin = regleLivre.getAgemin();
+            if (ageAdherent < ageMin) {
+                throw new Exception("⛔ Âge requis : " + ageMin + " ans. Âge actuel : " + ageAdherent + " ans.");
+            }
+        }
+
+        // 7️⃣ Créer le prêt
+        LocalDateTime debut = datePret.atStartOfDay().plusHours(2);
+        LocalDateTime fin = debut.plusDays(adherent.getProfil().getRegle().getNbjourpret());
+
+        if (idTypePret == 2L) {
+            fin = debut.withHour(23).withMinute(59).withSecond(59);
+        }
 
         Pret pret = new Pret();
         pret.setAdherent(adherent);

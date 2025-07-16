@@ -150,6 +150,15 @@
                                 <td>
                                     <form th:action="@{/rendre/save}" method="post">
                                         <input type="hidden" name="idPret" th:value="${dto.pret.idpret}" />
+
+                                        <div class="mb-2">
+                                            <label for="dateRetour" class="form-label">Date de retour :</label>
+                                            <input type="date" class="form-control form-control-sm" name="dateRetour"
+                                                id="dateRetour"
+                                                th:value="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}"
+                                                required />
+                                        </div>
+
                                         <button type="submit" class="btn btn-primary btn-sm">Rendre</button>
                                     </form>
                                 </td>
